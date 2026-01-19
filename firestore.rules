@@ -1,0 +1,87 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function para verificar si el usuario es admin
+    function isAdmin() {
+      return request.auth.token.email == 'jturpoan@unsa.edu.pe';
+    }
+    
+    // Helper function para verificar si es el propietario
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    // Helper function para verificar si es business user
+    function isBusiness() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'business';
+    }
+    
+    // ============= USERS COLLECTION =============
+    match /users/{userId} {
+      // Cualquiera autenticado puede leer cualquier usuario
+      allow read: if request.auth != null;
+      
+      // Solo el admin o el propio usuario pueden crear/actualizar
+      allow create: if request.auth != null;
+      
+      // Solo el propietario o admin pueden actualizar
+      allow update: if isOwner(userId) || isAdmin();
+      
+      // Solo admin puede eliminar
+      allow delete: if isAdmin();
+    }
+    
+    // ============= TASKS COLLECTION =============
+    match /tasks/{taskId} {
+      // Cualquiera autenticado puede leer tareas
+      allow read: if request.auth != null;
+      
+      // Solo admin y business users pueden crear tareas
+      allow create: if isAdmin() || isBusiness();
+      
+      // Solo el creador o admin pueden actualizar
+      allow update: if isAdmin() || 
+                       resource.data.createdBy == request.auth.uid;
+      
+      // Solo admin puede eliminar
+      allow delete: if isAdmin();
+    }
+    
+    // ============= SUBMISSIONS COLLECTION =============
+    match /submissions/{submissionId} {
+      // Los usuarios pueden leer sus propias submissions
+      // Admin puede leer todas
+      allow read: if isAdmin() || 
+                     resource.data.userId == request.auth.uid;
+      
+      // Solo el sistema (via Admin SDK) puede crear submissions
+      // Esto se maneja desde el webhook
+      allow create: if false; // Bloquear desde cliente
+      
+      // Nadie puede actualizar submissions
+      allow update: if false;
+      
+      // Solo admin puede eliminar
+      allow delete: if isAdmin();
+    }
+    
+    // ============= WITHDRAWALS COLLECTION =============
+    match /withdrawals/{withdrawalId} {
+      // Los usuarios pueden leer sus propias solicitudes
+      // Admin puede leer todas
+      allow read: if isAdmin() || 
+                     resource.data.userId == request.auth.uid;
+      
+      // Usuarios autenticados pueden crear solicitudes de retiro
+      allow create: if request.auth != null &&
+                       request.resource.data.userId == request.auth.uid;
+      
+      // Solo admin puede actualizar (cambiar status)
+      allow update: if isAdmin();
+      
+      // Solo admin puede eliminar
+      allow delete: if isAdmin();
+    }
+  }
+}
