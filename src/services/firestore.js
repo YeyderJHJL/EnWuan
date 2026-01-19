@@ -10,7 +10,8 @@ import {
   where, 
   orderBy,
   serverTimestamp,
-  increment
+  increment,
+  setDoc
 } from 'firebase/firestore';
 import { db } from './firebase';
 
