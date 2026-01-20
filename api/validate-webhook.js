@@ -1,4 +1,5 @@
 // Vercel Serverless Function para validar respuestas de Google Forms
+require('dotenv').config();
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const admin = require('firebase-admin');
 

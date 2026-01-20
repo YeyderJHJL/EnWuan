@@ -1,87 +1,77 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // Helper function para verificar si el usuario es admin
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
     function isAdmin() {
-      return request.auth.token.email == 'jturpoan@unsa.edu.pe';
+      return isAuthenticated()
+        && request.auth.token.email == 'jturpoan@unsa.edu.pe';
     }
-    
-    // Helper function para verificar si es el propietario
+
     function isOwner(userId) {
-      return request.auth.uid == userId;
+      return isAuthenticated()
+        && request.auth.uid == userId;
     }
-    
-    // Helper function para verificar si es business user
+
     function isBusiness() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'business';
+      return isAuthenticated()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'business';
     }
-    
-    // ============= USERS COLLECTION =============
+
+    // ============= USERS =============
     match /users/{userId} {
-      // Cualquiera autenticado puede leer cualquier usuario
-      allow read: if request.auth != null;
-      
-      // Solo el admin o el propio usuario pueden crear/actualizar
-      allow create: if request.auth != null;
-      
-      // Solo el propietario o admin pueden actualizar
+      allow read: if isAuthenticated();
+
+      // Solo puede crear su propio documento
+      allow create: if isOwner(userId);
+
+      // Solo propietario o admin
       allow update: if isOwner(userId) || isAdmin();
-      
-      // Solo admin puede eliminar
+
       allow delete: if isAdmin();
     }
-    
-    // ============= TASKS COLLECTION =============
+
+    // ============= TASKS =============
     match /tasks/{taskId} {
-      // Cualquiera autenticado puede leer tareas
-      allow read: if request.auth != null;
-      
-      // Solo admin y business users pueden crear tareas
+      allow read: if isAuthenticated();
+
+      // Admin o business
       allow create: if isAdmin() || isBusiness();
-      
-      // Solo el creador o admin pueden actualizar
-      allow update: if isAdmin() || 
-                       resource.data.createdBy == request.auth.uid;
-      
-      // Solo admin puede eliminar
+
+      // Admin o creador
+      allow update: if isAdmin()
+        || resource.data.createdBy == request.auth.uid;
+
       allow delete: if isAdmin();
     }
-    
-    // ============= SUBMISSIONS COLLECTION =============
+
+    // ============= SUBMISSIONS =============
     match /submissions/{submissionId} {
-      // Los usuarios pueden leer sus propias submissions
-      // Admin puede leer todas
-      allow read: if isAdmin() || 
-                     resource.data.userId == request.auth.uid;
-      
-      // Solo el sistema (via Admin SDK) puede crear submissions
-      // Esto se maneja desde el webhook
-      allow create: if false; // Bloquear desde cliente
-      
-      // Nadie puede actualizar submissions
+      allow read: if isAdmin()
+        || resource.data.userId == request.auth.uid;
+
+      // SOLO backend (Admin SDK)
+      allow create: if false;
       allow update: if false;
-      
-      // Solo admin puede eliminar
+
       allow delete: if isAdmin();
     }
-    
-    // ============= WITHDRAWALS COLLECTION =============
+
+    // ============= WITHDRAWALS =============
     match /withdrawals/{withdrawalId} {
-      // Los usuarios pueden leer sus propias solicitudes
-      // Admin puede leer todas
-      allow read: if isAdmin() || 
-                     resource.data.userId == request.auth.uid;
-      
-      // Usuarios autenticados pueden crear solicitudes de retiro
-      allow create: if request.auth != null &&
-                       request.resource.data.userId == request.auth.uid;
-      
-      // Solo admin puede actualizar (cambiar status)
+      allow read: if isAdmin()
+        || resource.data.userId == request.auth.uid;
+
+      allow create: if isAuthenticated()
+        && request.resource.data.userId == request.auth.uid;
+
       allow update: if isAdmin();
-      
-      // Solo admin puede eliminar
       allow delete: if isAdmin();
     }
   }
 }
+

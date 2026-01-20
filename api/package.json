@@ -3,6 +3,12 @@
   "version": "1.0.0",
   "dependencies": {
     "@google/generative-ai": "^0.2.0",
-    "firebase-admin": "^12.0.0"
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "firebase-admin": "^12.7.0"
+  },
+  "scripts": {
+    "dev": "node validate-webhook.js",
+    "build": "echo 'No build needed'"
   }
 }
