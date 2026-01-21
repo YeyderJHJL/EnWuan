@@ -121,6 +121,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const value = {
+    currentUser: firebaseUser, // Alias para compatibilidad
     firebaseUser,
     userProfile,
     userRole,
@@ -132,7 +133,7 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider value={value}>
-      {!loading ? children : null}
+      {!loading ? children : <div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div></div>}
     </AuthContext.Provider>
   );
 };
