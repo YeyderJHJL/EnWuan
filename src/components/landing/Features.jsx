@@ -39,7 +39,7 @@ export default function Features() {
       <div className="max-w-6xl mx-auto">
         {/* Section Header */}
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+          <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-[#0764bf] to-[#1800ad] bg-clip-text text-transparent mb-4">
             ¿Por qué elegir EnWuan?
           </h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
@@ -50,10 +50,10 @@ export default function Features() {
         {/* Features Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((feature, index) => (
-            <Card key={index} className="bg-white border border-gray-200">
+            <Card key={index} className="bg-white border border-gray-200 hover:shadow-lg transition-shadow">
               <CardBody className="p-6">
                 <div className="text-5xl mb-4">{feature.icon}</div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">
+                <h3 className="text-xl font-bold bg-gradient-to-r from-[#0764bf] to-[#1800ad] bg-clip-text text-transparent mb-3">
                   {feature.title}
                 </h3>
                 <p className="text-gray-600 leading-relaxed">

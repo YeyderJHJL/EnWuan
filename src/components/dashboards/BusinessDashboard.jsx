@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Card, CardBody, Button, Spinner } from '@nextui-org/react';
-import { useAuth } from '../hooks/useAuth';
-import { analyticsService, companiesService, surveysService } from '../services/api';
-import MainLayout from '../layouts/MainLayout';
+import { useAuth } from '../../contexts/AuthContext';
+import { analyticsService, companiesService, surveysService } from '../../services/api';
+import MainLayout from '../../layouts/MainLayout';
 import { Link } from 'react-router-dom';
 import { TrendingUp, Users, FileText, Star } from 'lucide-react';
 
@@ -94,7 +94,7 @@ export default function BusinessDashboard() {
                 <p className="text-white/90">Estado: {company.status === 'active' ? 'Activo' : 'Pendiente'}</p>
               </div>
               <Button
-                className="bg-white text-[#1800ad] font-bold"
+                className="bg-white text-[#1800ad] font-bold hover:bg-gray-100"
                 size="sm"
               >
                 Mejorar Plan
@@ -113,7 +113,7 @@ export default function BusinessDashboard() {
                 </div>
                 <div>
                   <p className="text-gray-600 text-sm">Encuestas</p>
-                  <p className="text-3xl font-bold">{surveys.length}</p>
+                  <p className="text-3xl font-bold text-[#0764bf]">{surveys.length}</p>
                 </div>
               </div>
             </CardBody>
@@ -127,13 +127,13 @@ export default function BusinessDashboard() {
                 </div>
                 <div>
                   <p className="text-gray-600 text-sm">Respuestas</p>
-                  <p className="text-3xl font-bold">{dashboard?.totalSubmissions || 0}</p>
+                  <p className="text-3xl font-bold text-[#1800ad]">{dashboard?.totalSubmissions || 0}</p>
                 </div>
               </div>
             </CardBody>
           </Card>
 
-          <Card className="shadow-lg border-l-4 border-green-500">
+          <Card className="shadow-lg border-l-4 border-green-600">
             <CardBody className="p-6">
               <div className="flex items-center gap-3">
                 <div className="p-3 bg-green-100 rounded-full">
@@ -141,21 +141,21 @@ export default function BusinessDashboard() {
                 </div>
                 <div>
                   <p className="text-gray-600 text-sm">Calidad Promedio</p>
-                  <p className="text-3xl font-bold">{dashboard?.averageQuality || 0}%</p>
+                  <p className="text-3xl font-bold text-green-600">{dashboard?.averageQuality || 0}%</p>
                 </div>
               </div>
             </CardBody>
           </Card>
 
-          <Card className="shadow-lg border-l-4 border-orange-500">
+          <Card className="shadow-lg border-l-4 border-[#01002e]">
             <CardBody className="p-6">
               <div className="flex items-center gap-3">
-                <div className="p-3 bg-orange-100 rounded-full">
-                  <TrendingUp className="w-6 h-6 text-orange-600" />
+                <div className="p-3 bg-indigo-100 rounded-full">
+                  <TrendingUp className="w-6 h-6 text-[#01002e]" />
                 </div>
                 <div>
                   <p className="text-gray-600 text-sm">Encuestas Activas</p>
-                  <p className="text-3xl font-bold">
+                  <p className="text-3xl font-bold text-[#01002e]">
                     {surveys.filter(s => s.isActive).length}
                   </p>
                 </div>
@@ -169,7 +169,7 @@ export default function BusinessDashboard() {
           <Button
             as={Link}
             to="/business/create-survey"
-            className="bg-gradient-to-r from-[#0764bf] to-[#1800ad] text-white font-bold h-16 text-lg"
+            className="bg-gradient-to-r from-[#0764bf] to-[#1800ad] text-white font-bold h-16 text-lg hover:shadow-lg transition-shadow"
             size="lg"
           >
             ✨ Crear Nueva Encuesta
@@ -177,8 +177,8 @@ export default function BusinessDashboard() {
           <Button
             as={Link}
             to="/business/surveys"
+            className="border-2 border-[#0764bf] text-[#0764bf] font-bold h-16 text-lg hover:bg-[#0764bf]/10 transition-colors"
             variant="bordered"
-            className="border-2 border-[#0764bf] text-[#0764bf] font-bold h-16 text-lg hover:bg-[#0764bf]/10"
             size="lg"
           >
             📊 Ver Todas Mis Encuestas
@@ -186,7 +186,7 @@ export default function BusinessDashboard() {
         </div>
 
         {/* Recent Surveys */}
-        <h2 className="text-2xl font-bold mb-6">Encuestas Recientes</h2>
+        <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-[#0764bf] to-[#1800ad] bg-clip-text text-transparent">Encuestas Recientes</h2>
         {surveys.length === 0 ? (
           <Card className="shadow-lg">
             <CardBody className="p-12 text-center">
@@ -203,7 +203,7 @@ export default function BusinessDashboard() {
         ) : (
           <div className="grid md:grid-cols-2 gap-6">
             {surveys.slice(0, 4).map((survey) => (
-              <Card key={survey.id} className="shadow-lg hover:shadow-xl transition-shadow">
+              <Card key={survey.id} className="shadow-lg hover:shadow-xl transition-shadow border-l-4 border-[#0764bf]">
                 <CardBody className="p-6">
                   <div className="flex justify-between items-start mb-3">
                     <h3 className="text-xl font-bold">{survey.title}</h3>
@@ -225,7 +225,7 @@ export default function BusinessDashboard() {
                     <Button
                       size="sm"
                       variant="flat"
-                      className="text-[#0764bf] font-semibold"
+                      className="text-[#0764bf] font-semibold hover:bg-[#0764bf]/10"
                     >
                       Ver Detalles
                     </Button>

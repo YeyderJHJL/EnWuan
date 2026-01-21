@@ -1,18 +1,16 @@
 import { useState } from 'react';
 import { Card, CardBody, CardHeader, Input, Textarea, Button } from '@nextui-org/react';
 import { Plus, DollarSign } from 'lucide-react';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { db } from '../../services/firebase';
+import { surveysService } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
 
-const CreateTask = () => {
-  const { currentUser } = useAuth();
+const AdminSurveyCreation = () => {
+  const { userProfile } = useAuth();
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     reward: '',
-    form_url: '',
-    entry_id: '',
+    companyId: userProfile?.companyId || '',
   });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -32,17 +30,12 @@ const CreateTask = () => {
     setSuccess(false);
 
     try {
-      const tasksRef = collection(db, 'tasks');
-      await addDoc(tasksRef, {
+      await surveysService.createSurvey({
         title: formData.title,
         description: formData.description,
         reward: parseFloat(formData.reward),
-        form_url: formData.form_url,
-        entry_id: formData.entry_id,
-        active: true,
-        createdBy: currentUser.uid,
-        createdByEmail: currentUser.email,
-        createdAt: serverTimestamp(),
+        companyId: formData.companyId,
+        isActive: true,
       });
 
       setSuccess(true);
@@ -50,13 +43,12 @@ const CreateTask = () => {
         title: '',
         description: '',
         reward: '',
-        form_url: '',
-        entry_id: '',
+        companyId: userProfile?.companyId || '',
       });
 
       setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
-      setError('Error al crear la tarea');
+      setError('Error al crear la encuesta');
       console.error(err);
     } finally {
       setLoading(false);
@@ -64,33 +56,32 @@ const CreateTask = () => {
   };
 
   return (
-    <Card className="border-none shadow-md" data-testid="create-task-card">
+    <Card className="border-none shadow-md">
       <CardHeader className="flex gap-3">
-        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-          <Plus className="text-blue-600" size={20} />
+        <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{backgroundColor: '#0764bf15'}}>
+          <Plus className="w-5 h-5" style={{color: '#0764bf'}} />
         </div>
         <div className="flex flex-col">
-          <p className="text-lg font-bold">Crear Nueva Tarea</p>
-          <p className="text-sm text-gray-500">Agrega una encuesta para que los usuarios completen</p>
+          <p className="text-lg font-bold">Crear Nueva Encuesta</p>
+          <p className="text-sm text-gray-500">Gestión de encuestas del sistema</p>
         </div>
       </CardHeader>
       <CardBody>
         <form onSubmit={handleSubmit} className="space-y-4">
           {success && (
-            <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded" data-testid="create-task-success">
-              ¡Tarea creada exitosamente!
+            <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded">
+              ¡Encuesta creada exitosamente!
             </div>
           )}
 
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded" data-testid="create-task-error">
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
               {error}
             </div>
           )}
 
           <Input
-            data-testid="task-title-input"
-            label="Título de la Tarea"
+            label="Título de la Encuesta"
             name="title"
             placeholder="Ej: Encuesta de satisfacción del cliente"
             value={formData.title}
@@ -100,10 +91,9 @@ const CreateTask = () => {
           />
 
           <Textarea
-            data-testid="task-description-input"
             label="Descripción"
             name="description"
-            placeholder="Describe qué debe hacer el usuario..."
+            placeholder="Describe el propósito de la encuesta..."
             value={formData.description}
             onChange={handleChange}
             required
@@ -112,7 +102,6 @@ const CreateTask = () => {
           />
 
           <Input
-            data-testid="task-reward-input"
             label="Recompensa (S/.)"
             name="reward"
             type="number"
@@ -125,38 +114,13 @@ const CreateTask = () => {
             startContent={<DollarSign size={18} className="text-gray-400" />}
           />
 
-          <Input
-            data-testid="task-form-url-input"
-            label="URL del Google Form"
-            name="form_url"
-            type="url"
-            placeholder="https://docs.google.com/forms/d/e/..."
-            value={formData.form_url}
-            onChange={handleChange}
-            required
-            variant="bordered"
-          />
-
-          <Input
-            data-testid="task-entry-id-input"
-            label="Entry ID del campo oculto"
-            name="entry_id"
-            placeholder="Ej: entry.123456789"
-            value={formData.entry_id}
-            onChange={handleChange}
-            required
-            variant="bordered"
-            description="Este campo se usa para inyectar el UID del usuario"
-          />
-
           <Button
-            data-testid="create-task-submit-button"
             type="submit"
-            color="primary"
             className="w-full"
             isLoading={loading}
+            style={{backgroundColor: '#0764bf', color: 'white'}}
           >
-            Crear Tarea
+            Crear Encuesta
           </Button>
         </form>
       </CardBody>
@@ -164,4 +128,4 @@ const CreateTask = () => {
   );
 };
 
-export default CreateTask;
+export default AdminSurveyCreation;

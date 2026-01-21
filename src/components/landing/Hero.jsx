@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 export default function Hero() {
   return (
-    <section className="min-h-screen bg-gradient-to-b from-indigo-600 via-purple-600 to-transparent flex items-center justify-center px-4 pt-20">
+    <section className="min-h-screen bg-gradient-to-b from-[#0764bf] via-[#1800ad] to-[#01002e] flex items-center justify-center px-4 pt-20">
       <div className="max-w-4xl mx-auto text-center">
         {/* Badge */}
         <div className="mb-6 inline-block">
@@ -14,7 +14,7 @@ export default function Hero() {
 
         {/* Headline */}
         <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
-          Monetiza tu <span className="bg-clip-text text-transparent bg-gradient-to-r from-yellow-200 to-pink-300">tiempo libre</span>
+          Monetiza tu <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#0764bf] to-white">tiempo libre</span>
         </h1>
 
         {/* Subheadline */}
@@ -27,7 +27,7 @@ export default function Hero() {
           <Link to="/register">
             <Button 
               size="lg" 
-              className="bg-white text-indigo-600 font-bold hover:bg-gray-100 px-8"
+              className="bg-white text-[#0764bf] font-bold hover:bg-gray-100 px-8"
             >
               Registrarse Gratis
             </Button>
@@ -64,15 +64,15 @@ export default function Hero() {
           <div className="bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 p-8">
             <div className="grid md:grid-cols-3 gap-8">
               <div className="text-white">
-                <p className="text-4xl font-bold text-yellow-300">5,000+</p>
+                <p className="text-4xl font-bold" style={{color: '#0764bf'}}>5,000+</p>
                 <p className="text-white/70 mt-2">Usuarios activos</p>
               </div>
               <div className="text-white">
-                <p className="text-4xl font-bold text-pink-300">$150K+</p>
+                <p className="text-4xl font-bold" style={{color: '#1800ad'}}>$150K+</p>
                 <p className="text-white/70 mt-2">Pagado a usuarios</p>
               </div>
               <div className="text-white">
-                <p className="text-4xl font-bold text-purple-300">10,000+</p>
+                <p className="text-4xl font-bold" style={{color: '#01002e'}}>10,000+</p>
                 <p className="text-white/70 mt-2">Encuestas completadas</p>
               </div>
             </div>

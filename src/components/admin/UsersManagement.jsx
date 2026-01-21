@@ -13,10 +13,9 @@ import {
   Spinner,
 } from '@nextui-org/react';
 import { UserCheck } from 'lucide-react';
-import { collection, getDocs, doc, updateDoc } from 'firebase/firestore';
-import { db } from '../../services/firebase';
+import { adminService } from '../../services/api';
 
-const UsersManagement = () => {
+const SystemUsersManagement = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -26,13 +25,8 @@ const UsersManagement = () => {
 
   const loadUsers = async () => {
     try {
-      const usersRef = collection(db, 'users');
-      const snapshot = await getDocs(usersRef);
-      const usersData = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      setUsers(usersData);
+      const response = await adminService.getAllUsers();
+      setUsers(response.data || []);
     } catch (error) {
       console.error('Error al cargar usuarios:', error);
     } finally {
@@ -40,18 +34,14 @@ const UsersManagement = () => {
     }
   };
 
-  const updateUserRole = async (userId, newRole) => {
+  const updateUserStatus = async (userId, newStatus) => {
     try {
-      const userRef = doc(db, 'users', userId);
-      await updateDoc(userRef, {
-        role: newRole
-      });
-      // Actualizar estado local
+      await adminService.updateUserStatus(userId, newStatus);
       setUsers(users.map(user => 
-        user.id === userId ? { ...user, role: newRole } : user
+        user.uid === userId ? { ...user, status: newStatus } : user
       ));
     } catch (error) {
-      console.error('Error al actualizar rol:', error);
+      console.error('Error al actualizar usuario:', error);
     }
   };
 
@@ -90,15 +80,14 @@ const UsersManagement = () => {
   }
 
   return (
-    <div className="space-y-4" data-testid="users-management">
+    <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-bold">Usuarios Registrados ({users.length})</h2>
+        <h2 className="text-xl font-bold">Usuarios del Sistema ({users.length})</h2>
         <Button 
           size="sm" 
-          variant="light" 
-          color="primary"
+          variant="light"
           onClick={loadUsers}
-          data-testid="refresh-users-button"
+          style={{color: '#0764bf'}}
         >
           Actualizar
         </Button>
@@ -109,17 +98,17 @@ const UsersManagement = () => {
           <p className="text-gray-500">No hay usuarios registrados aún</p>
         </div>
       ) : (
-        <Table aria-label="Tabla de usuarios" data-testid="users-table">
+        <Table aria-label="Tabla de usuarios">
           <TableHeader>
             <TableColumn>NOMBRE</TableColumn>
             <TableColumn>EMAIL</TableColumn>
             <TableColumn>ROL</TableColumn>
-            <TableColumn>SALDO</TableColumn>
+            <TableColumn>ESTADO</TableColumn>
             <TableColumn>ACCIONES</TableColumn>
           </TableHeader>
           <TableBody>
             {users.map((user) => (
-              <TableRow key={user.id} data-testid={`user-row-${user.id}`}>
+              <TableRow key={user.uid}>
                 <TableCell>
                   <div className="flex items-center gap-2">
                     <UserCheck size={18} className="text-gray-400" />
@@ -133,23 +122,25 @@ const UsersManagement = () => {
                   </Chip>
                 </TableCell>
                 <TableCell>
-                  <span className="font-semibold text-green-600">
-                    S/. {user.balance?.toFixed(2) || '0.00'}
-                  </span>
+                  <Chip 
+                    color={user.status === 'active' ? 'success' : 'danger'} 
+                    variant="flat" 
+                    size="sm"
+                  >
+                    {user.status === 'active' ? 'Activo' : 'Suspendido'}
+                  </Chip>
                 </TableCell>
                 <TableCell>
-                  <Select
-                    data-testid={`user-role-select-${user.id}`}
-                    size="sm"
-                    placeholder="Cambiar rol"
-                    className="w-40"
-                    selectedKeys={[user.role]}
-                    onChange={(e) => updateUserRole(user.id, e.target.value)}
-                  >
-                    <SelectItem key="user" value="user">Usuario</SelectItem>
-                    <SelectItem key="business" value="business">Empresa</SelectItem>
-                    <SelectItem key="admin" value="admin">Admin</SelectItem>
-                  </Select>
+                  {user.role !== 'admin' && (
+                    <Button
+                      size="sm"
+                      color={user.status === 'active' ? 'warning' : 'success'}
+                      variant="flat"
+                      onClick={() => updateUserStatus(user.uid, user.status === 'active' ? 'suspended' : 'active')}
+                    >
+                      {user.status === 'active' ? 'Suspender' : 'Activar'}
+                    </Button>
+                  )}
                 </TableCell>
               </TableRow>
             ))}
@@ -160,4 +151,4 @@ const UsersManagement = () => {
   );
 };
 
-export default UsersManagement;
+export default SystemUsersManagement;

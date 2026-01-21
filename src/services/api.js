@@ -42,6 +42,9 @@ export const surveysService = {
   getSurveysByCompany: (companyId) =>
     api.get(`/surveys/company/${companyId}`),
   
+  getSurveysByCreator: (creatorId) =>
+    api.get(`/surveys/creator/${creatorId}`),
+  
   getSurveyById: (id) =>
     api.get(`/surveys/${id}`),
   
@@ -50,6 +53,9 @@ export const surveysService = {
   
   toggleSurveyActive: (id) =>
     api.put(`/surveys/${id}/toggle`),
+  
+  deleteSurvey: (id) =>
+    api.delete(`/surveys/${id}`),
   
   suggestQuestions: (surveyId, goal) =>
     api.post(`/surveys/${surveyId}/suggest-questions`, { goal }),
@@ -64,6 +70,12 @@ export const submissionsService = {
   
   getSubmissionsBySurvey: (surveyId) =>
     api.get(`/submissions/survey/${surveyId}`),
+  
+  getSubmissionsByCompany: (companyId) =>
+    api.get(`/submissions/company/${companyId}`),
+  
+  getSubmissionById: (id) =>
+    api.get(`/submissions/${id}`),
 };
 
 export const analyticsService = {
@@ -72,6 +84,9 @@ export const analyticsService = {
   
   getCompanyDashboard: (companyId) =>
     api.get(`/analytics/dashboard/company/${companyId}`),
+  
+  getUserQualityProgression: (userId) =>
+    api.get(`/analytics/user/${userId}/quality-progression`),
   
   getSurveyQualityTrend: (surveyId) =>
     api.get(`/analytics/survey/${surveyId}/quality-trend`),
@@ -112,9 +127,31 @@ export const adminService = {
   
   updateUserStatus: (uid, status) =>
     api.put(`/admin/users/${uid}/status`, { status }),
-  
+
   updateCompanyStatus: (id, status) =>
     api.put(`/admin/companies/${id}/status`, { status }),
+};
+
+export const usersService = {
+  getUserById: (uid) =>
+    api.get(`/users/profile/${uid}`),
+  
+  getCurrentUser: () =>
+    api.get('/users/me'),
+  
+  getAllUsers: () =>
+    api.get('/users'),
+};
+
+export const aiService = {
+  validateResponse: (question, answer, questionType) =>
+    api.post('/ai/validate-response', { question, answer, questionType }),
+  
+  suggestQuestions: (companyProfile, surveyGoal) =>
+    api.post('/ai/suggest-questions', { companyProfile, surveyGoal }),
+  
+  analyzeResults: (surveyData) =>
+    api.post('/ai/analyze-results', { surveyData }),
 };
 
 export default api;

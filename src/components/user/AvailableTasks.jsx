@@ -7,46 +7,32 @@ import {
   Chip,
   Spinner,
 } from '@nextui-org/react';
-import { ExternalLink, DollarSign, Clock } from 'lucide-react';
-import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
-import { db } from '../../services/firebase';
-import { useAuth } from '../../contexts/AuthContext';
+import { ExternalLink, DollarSign, Clock, Zap } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { surveysService } from '../../services/api';
 
-const AvailableTasks = () => {
-  const { currentUser } = useAuth();
-  const [tasks, setTasks] = useState([]);
+export default function AvailableTasks() {
+  const navigate = useNavigate();
+  const [surveys, setSurveys] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadTasks();
+    loadSurveys();
   }, []);
 
-  const loadTasks = async () => {
+  const loadSurveys = async () => {
     try {
-      const tasksRef = collection(db, 'tasks');
-      const q = query(
-        tasksRef,
-        where('active', '==', true),
-        orderBy('createdAt', 'desc')
-      );
-      const snapshot = await getDocs(q);
-      const tasksData = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      setTasks(tasksData);
+      const response = await surveysService.getActiveSurveys();
+      setSurveys(response.data || []);
     } catch (error) {
-      console.error('Error al cargar tareas:', error);
+      console.error('Error al cargar encuestas:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleTaskClick = (task) => {
-    // Construir URL con el UID del usuario
-    const separator = task.form_url.includes('?') ? '&' : '?';
-    const taskUrl = `${task.form_url}${separator}${task.entry_id}=${currentUser.uid}`;
-    window.open(taskUrl, '_blank');
+  const handleStartSurvey = (surveyId) => {
+    navigate(`/survey/${surveyId}`);
   };
 
   if (loading) {
@@ -58,60 +44,75 @@ const AvailableTasks = () => {
   }
 
   return (
-    <div className="space-y-4" data-testid="available-tasks">
+    <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h3 className="text-xl font-bold">Tareas Disponibles ({tasks.length})</h3>
+        <h3 className="text-xl font-bold bg-gradient-to-r from-[#0764bf] to-[#1800ad] bg-clip-text text-transparent">
+          Encuestas Disponibles ({surveys.length})
+        </h3>
         <Button 
           size="sm" 
-          variant="light" 
-          color="primary"
-          onClick={loadTasks}
-          data-testid="refresh-tasks-button"
+          variant="flat"
+          className="text-[#0764bf] hover:bg-[#0764bf]/10"
+          onClick={loadSurveys}
         >
           Actualizar
         </Button>
       </div>
 
-      {tasks.length === 0 ? (
-        <Card>
+      {surveys.length === 0 ? (
+        <Card className="shadow-lg">
           <CardBody className="text-center py-12">
             <Clock className="mx-auto text-gray-400 mb-4" size={48} />
-            <p className="text-gray-500 text-lg font-medium">No hay tareas disponibles ahora</p>
+            <p className="text-gray-500 text-lg font-medium">No hay encuestas disponibles ahora</p>
             <p className="text-sm text-gray-400 mt-2">Vuelve más tarde para encontrar nuevas oportunidades</p>
           </CardBody>
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {tasks.map((task) => (
+          {surveys.map((survey) => (
             <Card 
-              key={task.id} 
-              className="hover:shadow-lg transition-shadow cursor-pointer"
+              key={survey.id} 
+              className="shadow-lg hover:shadow-xl transition-shadow border-l-4 border-[#0764bf]"
               isPressable
-              data-testid={`task-card-${task.id}`}
             >
               <CardHeader className="flex flex-col items-start gap-2 pb-2">
                 <div className="flex justify-between items-start w-full">
-                  <h4 className="text-lg font-bold">{task.title}</h4>
-                  <Chip color="success" variant="flat" size="sm">
-                    <div className="flex items-center gap-1">
-                      <DollarSign size={14} />
-                      <span>S/. {task.reward?.toFixed(2)}</span>
-                    </div>
+                  <div className="flex-1">
+                    <h4 className="text-lg font-bold text-gray-900">{survey.title}</h4>
+                    <p className="text-xs text-gray-500 mt-1">Por: {survey.companyName || 'Empresa'}</p>
+                  </div>
+                  <Chip 
+                    startContent={<DollarSign className="w-3 h-3" />}
+                    className="bg-gradient-to-r from-[#0764bf] to-[#1800ad] text-white font-bold"
+                    variant="flat"
+                    size="sm"
+                  >
+                    S/ {survey.reward?.toFixed(2)}
                   </Chip>
                 </div>
               </CardHeader>
               <CardBody className="pt-0">
-                <p className="text-sm text-gray-600 mb-4 line-clamp-2">
-                  {task.description}
+                <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                  {survey.description}
                 </p>
+                
+                <div className="flex gap-2 text-xs text-gray-500 mb-4">
+                  <div className="flex items-center gap-1">
+                    <Clock className="w-3 h-3" />
+                    ~{survey.estimatedTime || 5} min
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Zap className="w-3 h-3" />
+                    {survey.questions?.length || 0} preguntas
+                  </div>
+                </div>
+
                 <Button
-                  data-testid={`task-start-button-${task.id}`}
-                  color="primary"
-                  className="w-full"
-                  startContent={<ExternalLink size={18} />}
-                  onClick={() => handleTaskClick(task)}
+                  className="w-full bg-gradient-to-r from-[#0764bf] to-[#1800ad] text-white font-bold"
+                  startContent={<ExternalLink size={16} />}
+                  onClick={() => handleStartSurvey(survey.id)}
                 >
-                  Realizar Tarea
+                  Responder Encuesta
                 </Button>
               </CardBody>
             </Card>
@@ -120,6 +121,4 @@ const AvailableTasks = () => {
       )}
     </div>
   );
-};
-
-export default AvailableTasks;
+}

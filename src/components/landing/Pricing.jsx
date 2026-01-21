@@ -54,7 +54,7 @@ export default function Pricing() {
       <div className="max-w-6xl mx-auto">
         {/* Section Header */}
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+          <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-[#0764bf] to-[#1800ad] bg-clip-text text-transparent mb-4">
             Sistema de Niveles
           </h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
@@ -69,7 +69,7 @@ export default function Pricing() {
               {/* Highlight Badge */}
               {plan.highlight && (
                 <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
-                  <span className="bg-gradient-to-r from-yellow-300 to-yellow-500 text-gray-900 px-4 py-1 rounded-full text-sm font-bold">
+                  <span className="bg-gradient-to-r from-[#0764bf] to-[#1800ad] text-white px-4 py-1 rounded-full text-sm font-bold">
                     ⭐ Más Popular
                   </span>
                 </div>
@@ -78,9 +78,10 @@ export default function Pricing() {
               <Card 
                 className={`${
                   plan.highlight 
-                    ? 'md:scale-105 border-2 border-yellow-400 bg-gradient-to-b from-yellow-50 to-white' 
+                    ? 'md:scale-105 border-2 bg-gradient-to-b from-blue-50 to-white' 
                     : 'border border-gray-200 bg-white'
                 }`}
+                style={plan.highlight ? {borderColor: '#0764bf'} : {}}
               >
                 <CardBody className="p-8">
                   {/* Header */}
@@ -101,7 +102,7 @@ export default function Pricing() {
 
                   {/* Price */}
                   <div className="mb-6">
-                    <div className="text-3xl font-bold text-gray-900">{plan.price}</div>
+                    <div className="text-3xl font-bold" style={{color: '#0764bf'}}>{plan.price}</div>
                     {plan.subtitle && (
                       <p className="text-sm text-gray-600 mt-2">{plan.subtitle}</p>
                     )}
@@ -111,7 +112,7 @@ export default function Pricing() {
                   <div className="mb-8 space-y-3">
                     {plan.features.map((feature, i) => (
                       <div key={i} className="flex items-start gap-3">
-                        <span className="text-green-500 text-lg leading-none mt-0.5">✓</span>
+                        <span style={{color: '#0764bf'}} className="text-lg leading-none mt-0.5">✓</span>
                         <span className="text-gray-700">{feature}</span>
                       </div>
                     ))}
@@ -123,9 +124,10 @@ export default function Pricing() {
                       fullWidth
                       className={`${
                         plan.highlight
-                          ? 'bg-gradient-to-r from-yellow-400 to-yellow-500 text-gray-900 font-bold'
+                          ? 'text-white font-bold'
                           : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
                       }`}
+                      style={plan.highlight ? {backgroundColor: '#0764bf'} : {}}
                     >
                       Comenzar
                     </Button>
@@ -137,7 +139,7 @@ export default function Pricing() {
         </div>
 
         {/* Info Box */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
+        <div className="rounded-lg p-6 text-center" style={{backgroundColor: '#0764bf15', borderLeft: '4px solid #0764bf'}}>
           <p className="text-gray-700">
             💡 <strong>Tip:</strong> Tu nivel se ajusta automáticamente cada semana según tu calidad promedio de respuestas. 
             No hay pagos requeridos - ¡solo sube de nivel completando encuestas de calidad!

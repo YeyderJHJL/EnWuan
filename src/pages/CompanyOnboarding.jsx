@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Card, CardBody, Button, Input, Textarea, Select, SelectItem } from '@nextui-org/react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../contexts/AuthContext';
 import { companiesService } from '../services/api';
 import MainLayout from '../layouts/MainLayout';
 

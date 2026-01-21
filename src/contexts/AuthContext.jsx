@@ -20,7 +20,6 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
-  const [currentUser, setCurrentUser] = useState(null);
   const [userRole, setUserRole] = useState(null);
   const [firebaseUser, setFirebaseUser] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
@@ -121,7 +120,6 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const value = {
-    currentUser: firebaseUser, // Alias para compatibilidad
     firebaseUser,
     userProfile,
     userRole,

@@ -5,21 +5,21 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-gray-900 text-gray-300 py-16 px-4">
+    <footer className="bg-[#01002e] text-gray-300 py-16 px-4">
       <div className="max-w-6xl mx-auto">
         <div className="grid md:grid-cols-4 gap-12 mb-12">
           {/* Brand */}
           <div>
             <h3 className="text-2xl font-bold text-white mb-4">
-              En<span className="text-purple-400">Wuan</span>
+              En<span style={{color: '#0764bf'}}>Wuan</span>
             </h3>
             <p className="text-gray-400 mb-6">
               Plataforma de encuestas inteligentes con gamificación y validación por IA.
             </p>
             <div className="flex gap-4">
-              <a href="#" className="text-gray-400 hover:text-white">Twitter</a>
-              <a href="#" className="text-gray-400 hover:text-white">Facebook</a>
-              <a href="#" className="text-gray-400 hover:text-white">LinkedIn</a>
+              <a href="#" className="text-gray-400 hover:text-[#0764bf] transition">Twitter</a>
+              <a href="#" className="text-gray-400 hover:text-[#0764bf] transition">Facebook</a>
+              <a href="#" className="text-gray-400 hover:text-[#0764bf] transition">LinkedIn</a>
             </div>
           </div>
 
@@ -27,10 +27,10 @@ export default function Footer() {
           <div>
             <h4 className="text-white font-bold mb-6">Plataforma</h4>
             <ul className="space-y-3">
-              <li><Link to="/register" className="text-gray-400 hover:text-white">Empezar</Link></li>
-              <li><Link to="/login" className="text-gray-400 hover:text-white">Iniciar Sesión</Link></li>
-              <li><a href="#" className="text-gray-400 hover:text-white">Cómo Funciona</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-white">Precios</a></li>
+              <li><Link to="/register" className="text-gray-400 hover:text-[#0764bf] transition">Empezar</Link></li>
+              <li><Link to="/login" className="text-gray-400 hover:text-[#0764bf] transition">Iniciar Sesión</Link></li>
+              <li><a href="#" className="text-gray-400 hover:text-[#0764bf] transition">Cómo Funciona</a></li>
+              <li><a href="#" className="text-gray-400 hover:text-[#0764bf] transition">Precios</a></li>
             </ul>
           </div>
 
@@ -38,10 +38,10 @@ export default function Footer() {
           <div>
             <h4 className="text-white font-bold mb-6">Empresa</h4>
             <ul className="space-y-3">
-              <li><a href="#" className="text-gray-400 hover:text-white">Sobre Nosotros</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-white">Blog</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-white">Contacto</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-white">Carreras</a></li>
+              <li><a href="#" className="text-gray-400 hover:text-[#0764bf] transition">Sobre Nosotros</a></li>
+              <li><a href="#" className="text-gray-400 hover:text-[#0764bf] transition">Blog</a></li>
+              <li><a href="#" className="text-gray-400 hover:text-[#0764bf] transition">Contacto</a></li>
+              <li><a href="#" className="text-gray-400 hover:text-[#0764bf] transition">Carreras</a></li>
             </ul>
           </div>
 
@@ -49,10 +49,10 @@ export default function Footer() {
           <div>
             <h4 className="text-white font-bold mb-6">Legal</h4>
             <ul className="space-y-3">
-              <li><a href="#" className="text-gray-400 hover:text-white">Términos</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-white">Privacidad</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-white">Cookies</a></li>
-              <li><a href="#" className="text-gray-400 hover:text-white">Contacta</a></li>
+              <li><a href="#" className="text-gray-400 hover:text-[#0764bf] transition">Términos</a></li>
+              <li><a href="#" className="text-gray-400 hover:text-[#0764bf] transition">Privacidad</a></li>
+              <li><a href="#" className="text-gray-400 hover:text-[#0764bf] transition">Cookies</a></li>
+              <li><a href="#" className="text-gray-400 hover:text-[#0764bf] transition">Contacta</a></li>
             </ul>
           </div>
         </div>
@@ -66,7 +66,7 @@ export default function Footer() {
         </div>
 
         {/* CTA Bar */}
-        <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg p-8 text-center">
+        <div className="bg-gradient-to-r from-[#0764bf] to-[#1800ad] rounded-lg p-8 text-center">
           <h3 className="text-2xl font-bold text-white mb-4">
             ¿Listo para empezar?
           </h3>
@@ -74,7 +74,7 @@ export default function Footer() {
             Únete a miles de usuarios que ya están ganando dinero
           </p>
           <Link to="/register">
-            <Button size="lg" className="bg-white text-indigo-600 font-bold">
+            <Button size="lg" className="bg-white text-[#0764bf] font-bold">
               Registrarse Ahora
             </Button>
           </Link>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Card, CardBody, Button, Input, Avatar } from '@nextui-org/react';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '../contexts/AuthContext';
 import MainLayout from '../layouts/MainLayout';
 import { User, Mail, Shield } from 'lucide-react';
 

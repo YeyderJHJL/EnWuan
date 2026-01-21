@@ -14,7 +14,7 @@ const QuestionTypeEnum = {
 export default function SurveyDetail() {
   const { surveyId } = useParams();
   const navigate = useNavigate();
-  const { currentUser } = useAuth();
+  const { firebaseUser } = useAuth();
 
   const [survey, setSurvey] = useState(null);
   const [answers, setAnswers] = useState({});
@@ -183,7 +183,7 @@ export default function SurveyDetail() {
                   <div className="text-right">
                     <div className="text-sm text-gray-600">Se agregó a tu saldo</div>
                     <div className="text-lg font-semibold text-green-600 mt-1">
-                      {currentUser?.balance ? `Saldo Total: $${(currentUser.balance + rewardAmount).toFixed(2)}` : 'Saldo actualizado'}
+                      {firebaseUser?.balance ? `Saldo Total: $${(firebaseUser.balance + rewardAmount).toFixed(2)}` : 'Saldo actualizado'}
                     </div>
                   </div>
                 </div>

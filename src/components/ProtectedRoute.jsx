@@ -2,7 +2,7 @@ import { Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
-  const { currentUser, userRole, loading } = useAuth();
+  const { firebaseUser, userRole, loading } = useAuth();
 
   // Mostrar loader mientras se verifica autenticación
   if (loading) {
@@ -17,7 +17,7 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   }
 
   // Si no hay usuario, redirigir al login
-  if (!currentUser) {
+  if (!firebaseUser) {
     return <Navigate to="/login" replace />;
   }
 

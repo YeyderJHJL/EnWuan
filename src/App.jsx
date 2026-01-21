@@ -4,18 +4,25 @@ import ProtectedRoute from './components/ProtectedRoute';
 
 // Pages
 import Landing from './pages/LandingPage';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import UserDashboard from './pages/UserDashboard';
-import AdminDashboard from './pages/AdminDashboard';
-import BusinessDashboard from './pages/BusinessDashboard';
 import SurveyDetail from './pages/SurveyDetail';
 import Profile from './pages/Profile';
-import CreateSurvey from './pages/CreateSurvey';
-import MySurveys from './pages/MySurveys';
+import CreateSurvey from './components/business/CreateSurvey';
+import MySurveys from './components/business/MySurveys';
+import SurveyResponses from './components/business/SurveyResponses';
+import SurveyAnalytics from './components/business/SurveyAnalytics';
+import CompanyProfile from './components/business/CompanyProfile';
+import UserProfile from './components/user/UserProfile';
 import CompanyOnboarding from './pages/CompanyOnboarding';
-import AdminUsers from './pages/AdminUsers';
-import AdminCompanies from './pages/AdminCompanies';
+import AdminProfile from './components/admin/AdminProfile';
+
+// Auth Components
+import Login from './components/auth/Login';
+import Register from './components/auth/Register';
+
+// Dashboards
+import UserDashboard from './components/dashboards/UserDashboard';
+import BusinessDashboard from './components/dashboards/BusinessDashboard';
+import AdminDashboard from './components/dashboards/AdminDashboard';
 
 function App() {
   return (
@@ -55,6 +62,15 @@ function App() {
             }
           />
 
+          <Route
+            path="/user/profile"
+            element={
+              <ProtectedRoute allowedRoles={['user']}>
+                <UserProfile />
+              </ProtectedRoute>
+            }
+          />
+
           {/* Protected Routes - Business */}
           <Route
             path="/dashboard/business"
@@ -84,6 +100,33 @@ function App() {
           />
 
           <Route
+            path="/business/survey/:surveyId/responses"
+            element={
+              <ProtectedRoute allowedRoles={['business']}>
+                <SurveyResponses />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/business/survey/:surveyId/analytics"
+            element={
+              <ProtectedRoute allowedRoles={['business']}>
+                <SurveyAnalytics />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/business/profile"
+            element={
+              <ProtectedRoute allowedRoles={['business']}>
+                <CompanyProfile />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
             path="/onboarding/company"
             element={
               <ProtectedRoute allowedRoles={['business']}>
@@ -103,19 +146,10 @@ function App() {
           />
 
           <Route
-            path="/admin/users"
+            path="/admin/profile"
             element={
               <ProtectedRoute allowedRoles={['admin']}>
-                <AdminUsers />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/admin/companies"
-            element={
-              <ProtectedRoute allowedRoles={['admin']}>
-                <AdminCompanies />
+                <AdminProfile />
               </ProtectedRoute>
             }
           />

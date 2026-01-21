@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Card, CardBody, Progress, Button, Spinner } from '@nextui-org/react';
-import { useAuth } from '../hooks/useAuth';
-import { analyticsService, surveysService } from '../services/api';
-import MainLayout from '../layouts/MainLayout';
+import { useAuth } from '../../contexts/AuthContext';
+import { analyticsService, surveysService } from '../../services/api';
+import MainLayout from '../../layouts/MainLayout';
 
 export default function UserDashboard() {
   const { userProfile } = useAuth();
@@ -53,30 +53,30 @@ export default function UserDashboard() {
 
         {/* Stats Cards */}
         <div className="grid md:grid-cols-4 gap-4 mb-8">
-          <Card className="shadow-lg border-l-4 border-green-500">
-            <CardBody className="p-6">
-              <p className="text-gray-600 text-sm">Saldo</p>
-              <p className="text-3xl font-bold text-green-600">S/ {dashboard?.stats?.balance || 0}</p>
-            </CardBody>
-          </Card>
-
           <Card className="shadow-lg border-l-4 border-[#0764bf]">
             <CardBody className="p-6">
-              <p className="text-gray-600 text-sm">Encuestas Completadas</p>
-              <p className="text-3xl font-bold text-[#0764bf]">{dashboard?.stats?.totalSubmissions || 0}</p>
+              <p className="text-gray-600 text-sm">Saldo</p>
+              <p className="text-3xl font-bold text-[#0764bf]">S/ {dashboard?.stats?.balance || 0}</p>
             </CardBody>
           </Card>
 
           <Card className="shadow-lg border-l-4 border-[#1800ad]">
             <CardBody className="p-6">
+              <p className="text-gray-600 text-sm">Encuestas Completadas</p>
+              <p className="text-3xl font-bold text-[#1800ad]">{dashboard?.stats?.totalSubmissions || 0}</p>
+            </CardBody>
+          </Card>
+
+          <Card className="shadow-lg border-l-4 border-[#01002e]">
+            <CardBody className="p-6">
               <p className="text-gray-600 text-sm">Calidad Promedio</p>
-              <p className="text-3xl font-bold text-[#1800ad]">
+              <p className="text-3xl font-bold text-[#01002e]">
                 {dashboard?.stats?.averageQuality || 0}%
               </p>
             </CardBody>
           </Card>
 
-          <Card className="shadow-lg border-l-4 border-yellow-500">
+          <Card className="shadow-lg border-l-4 border-green-500">
             <CardBody className="p-6">
               <p className="text-gray-600 text-sm">Nivel</p>
               <div className="flex items-center gap-2">
@@ -90,7 +90,7 @@ export default function UserDashboard() {
         {/* Level Progress */}
         <Card className="shadow-lg mb-8">
           <CardBody className="p-6">
-            <h3 className="text-xl font-bold mb-4">Progreso de Nivel</h3>
+            <h3 className="text-xl font-bold mb-4 bg-gradient-to-r from-[#0764bf] to-[#1800ad] bg-clip-text text-transparent">Progreso de Nivel</h3>
             <Progress
               value={dashboard?.stats?.averageQuality || 0}
               className="mb-4"
@@ -103,7 +103,7 @@ export default function UserDashboard() {
               }
             />
             <p className="text-sm text-gray-600">
-              {dashboard?.stats?.averageQuality >= 85 && 'Excelente - Sigue así!'}
+              {dashboard?.stats?.averageQuality >= 85 && 'Excelente - ¡Sigue así!'}
               {dashboard?.stats?.averageQuality >= 70 && dashboard?.stats?.averageQuality < 85 && 'Bueno - Puedes mejorar'}
               {dashboard?.stats?.averageQuality < 70 && 'Regular - Intenta responder con más cuidado'}
             </p>
@@ -111,18 +111,18 @@ export default function UserDashboard() {
         </Card>
 
         {/* Available Surveys */}
-        <h2 className="text-3xl font-bold mb-6">Encuestas Disponibles</h2>
+        <h2 className="text-3xl font-bold mb-6 bg-gradient-to-r from-[#0764bf] to-[#1800ad] bg-clip-text text-transparent">Encuestas Disponibles</h2>
         <div className="grid md:grid-cols-2 gap-6">
           {surveys.length === 0 ? (
             <p className="text-gray-600">No hay encuestas disponibles en este momento</p>
           ) : (
             surveys.map((survey) => (
-              <Card key={survey.id} className="shadow-lg">
+              <Card key={survey.id} className="shadow-lg hover:shadow-xl transition-shadow">
                 <CardBody className="p-6">
                   <h3 className="text-xl font-bold mb-2">{survey.title}</h3>
                   <p className="text-gray-600 mb-4 line-clamp-2">{survey.description}</p>
                   <div className="flex justify-between items-center">
-                    <span className="text-lg font-bold text-green-600">+${survey.reward}</span>
+                    <span className="text-lg font-bold bg-gradient-to-r from-green-500 to-green-600 bg-clip-text text-transparent">+${survey.reward}</span>
                     <Button
                       size="sm"
                       className="bg-gradient-to-r from-[#0764bf] to-[#1800ad] text-white font-bold"
@@ -141,17 +141,17 @@ export default function UserDashboard() {
         {/* Recent Activity */}
         {dashboard?.recentActivity && dashboard.recentActivity.length > 0 && (
           <div className="mt-12">
-            <h2 className="text-3xl font-bold mb-6">Actividad Reciente</h2>
+            <h2 className="text-3xl font-bold mb-6 bg-gradient-to-r from-[#0764bf] to-[#1800ad] bg-clip-text text-transparent">Actividad Reciente</h2>
             <Card className="shadow-lg">
               <CardBody className="p-6">
                 <div className="space-y-4">
                   {dashboard.recentActivity.map((activity, index) => (
-                    <div key={index} className="flex justify-between items-center py-2 border-b">
+                    <div key={index} className="flex justify-between items-center py-2 border-b border-gray-200">
                       <div>
                         <p className="font-bold">Encuesta completada</p>
                         <p className="text-sm text-gray-600">Calidad: {activity.quality}%</p>
                       </div>
-                      <span className="text-green-600 font-bold">+${activity.reward}</span>
+                      <span className="bg-gradient-to-r from-green-500 to-green-600 bg-clip-text text-transparent font-bold">+${activity.reward}</span>
                     </div>
                   ))}
                 </div>

@@ -11,59 +11,47 @@ import {
   Chip,
   Spinner,
 } from '@nextui-org/react';
-import { Trash2, ExternalLink } from 'lucide-react';
-import { collection, getDocs, doc, updateDoc, deleteDoc, orderBy, query } from 'firebase/firestore';
-import { db } from '../../services/firebase';
+import { Trash2 } from 'lucide-react';
+import { surveysService } from '../../services/api';
 
-const TasksManagement = () => {
-  const [tasks, setTasks] = useState([]);
+const SurveysManagement = () => {
+  const [surveys, setSurveys] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadTasks();
+    loadSurveys();
   }, []);
 
-  const loadTasks = async () => {
+  const loadSurveys = async () => {
     try {
-      const tasksRef = collection(db, 'tasks');
-      const q = query(tasksRef, orderBy('createdAt', 'desc'));
-      const snapshot = await getDocs(q);
-      const tasksData = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      setTasks(tasksData);
+      const response = await surveysService.getActiveSurveys();
+      setSurveys(response.data || []);
     } catch (error) {
-      console.error('Error al cargar tareas:', error);
+      console.error('Error al cargar encuestas:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const toggleTaskStatus = async (taskId, currentStatus) => {
+  const toggleSurveyStatus = async (surveyId, currentStatus) => {
     try {
-      const taskRef = doc(db, 'tasks', taskId);
-      await updateDoc(taskRef, {
-        active: !currentStatus
-      });
-      // Actualizar estado local
-      setTasks(tasks.map(task => 
-        task.id === taskId ? { ...task, active: !currentStatus } : task
+      await surveysService.toggleSurveyActive(surveyId, !currentStatus);
+      setSurveys(surveys.map(survey => 
+        survey.id === surveyId ? { ...survey, isActive: !currentStatus } : survey
       ));
     } catch (error) {
-      console.error('Error al actualizar tarea:', error);
+      console.error('Error al actualizar encuesta:', error);
     }
   };
 
-  const deleteTask = async (taskId) => {
-    if (!confirm('¿Estás seguro de eliminar esta tarea?')) return;
+  const deleteSurvey = async (surveyId) => {
+    if (!confirm('¿Estás seguro de eliminar esta encuesta?')) return;
 
     try {
-      const taskRef = doc(db, 'tasks', taskId);
-      await deleteDoc(taskRef);
-      setTasks(tasks.filter(task => task.id !== taskId));
+      await surveysService.deleteSurvey(surveyId);
+      setSurveys(surveys.filter(survey => survey.id !== surveyId));
     } catch (error) {
-      console.error('Error al eliminar tarea:', error);
+      console.error('Error al eliminar encuesta:', error);
     }
   };
 
@@ -76,26 +64,25 @@ const TasksManagement = () => {
   }
 
   return (
-    <div className="space-y-4" data-testid="tasks-management">
+    <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-bold">Tareas Creadas ({tasks.length})</h2>
+        <h2 className="text-xl font-bold">Encuestas del Sistema ({surveys.length})</h2>
         <Button 
           size="sm" 
-          variant="light" 
-          color="primary"
-          onClick={loadTasks}
-          data-testid="refresh-tasks-button"
+          variant="light"
+          onClick={loadSurveys}
+          style={{color: '#0764bf'}}
         >
           Actualizar
         </Button>
       </div>
 
-      {tasks.length === 0 ? (
+      {surveys.length === 0 ? (
         <div className="text-center py-12 bg-gray-50 rounded-lg">
-          <p className="text-gray-500">No hay tareas creadas aún</p>
+          <p className="text-gray-500">No hay encuestas creadas aún</p>
         </div>
       ) : (
-        <Table aria-label="Tabla de tareas" data-testid="tasks-table">
+        <Table aria-label="Tabla de encuestas">
           <TableHeader>
             <TableColumn>TÍTULO</TableColumn>
             <TableColumn>RECOMPENSA</TableColumn>
@@ -103,53 +90,39 @@ const TasksManagement = () => {
             <TableColumn>ACCIONES</TableColumn>
           </TableHeader>
           <TableBody>
-            {tasks.map((task) => (
-              <TableRow key={task.id} data-testid={`task-row-${task.id}`}>
+            {surveys.map((survey) => (
+              <TableRow key={survey.id}>
                 <TableCell>
                   <div>
-                    <p className="font-medium">{task.title}</p>
-                    <p className="text-sm text-gray-500 line-clamp-1">{task.description}</p>
+                    <p className="font-medium">{survey.title}</p>
+                    <p className="text-sm text-gray-500 line-clamp-1">{survey.description}</p>
                   </div>
                 </TableCell>
                 <TableCell>
                   <Chip color="success" variant="flat">
-                    S/. {task.reward?.toFixed(2) || '0.00'}
+                    S/. {survey.reward?.toFixed(2) || '0.00'}
                   </Chip>
                 </TableCell>
                 <TableCell>
                   <Switch
-                    data-testid={`task-switch-${task.id}`}
-                    isSelected={task.active}
-                    onValueChange={() => toggleTaskStatus(task.id, task.active)}
+                    isSelected={survey.isActive}
+                    onValueChange={() => toggleSurveyStatus(survey.id, survey.isActive)}
                     color="success"
                     size="sm"
                   >
-                    {task.active ? 'Activa' : 'Inactiva'}
+                    {survey.isActive ? 'Activa' : 'Inactiva'}
                   </Switch>
                 </TableCell>
                 <TableCell>
-                  <div className="flex gap-2">
-                    <Button
-                      data-testid={`task-view-${task.id}`}
-                      isIconOnly
-                      size="sm"
-                      variant="light"
-                      color="primary"
-                      onClick={() => window.open(task.form_url, '_blank')}
-                    >
-                      <ExternalLink size={16} />
-                    </Button>
-                    <Button
-                      data-testid={`task-delete-${task.id}`}
-                      isIconOnly
-                      size="sm"
-                      variant="light"
-                      color="danger"
-                      onClick={() => deleteTask(task.id)}
-                    >
-                      <Trash2 size={16} />
-                    </Button>
-                  </div>
+                  <Button
+                    isIconOnly
+                    size="sm"
+                    variant="light"
+                    color="danger"
+                    onClick={() => deleteSurvey(survey.id)}
+                  >
+                    <Trash2 size={16} />
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}
@@ -160,4 +133,4 @@ const TasksManagement = () => {
   );
 };
 
-export default TasksManagement;
+export default SurveysManagement;

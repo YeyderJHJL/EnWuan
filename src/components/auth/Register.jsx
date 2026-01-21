@@ -64,15 +64,15 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-      <Card className="w-full max-w-md" data-testid="register-card">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#01002e]/5 to-[#0764bf]/5 p-4">
+      <Card className="w-full max-w-md shadow-2xl border-t-4 border-[#1800ad]" data-testid="register-card">
         <CardHeader className="flex flex-col gap-3 pb-0">
           <div className="flex items-center gap-2">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
+            <div className="w-12 h-12 bg-gradient-to-br from-[#0764bf] to-[#1800ad] rounded-full flex items-center justify-center">
               <UserPlus className="text-white" size={24} />
             </div>
             <div className="flex flex-col">
-              <h1 className="text-2xl font-bold">EnWuan</h1>
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-[#0764bf] to-[#1800ad] bg-clip-text text-transparent">EnWuan</h1>
               <p className="text-sm text-gray-500">Crear Cuenta</p>
             </div>
           </div>
@@ -165,8 +165,7 @@ const Register = () => {
             <Button
               data-testid="register-submit-button"
               type="submit"
-              color="primary"
-              className="w-full"
+              className="w-full bg-gradient-to-r from-[#0764bf] to-[#1800ad] text-white font-bold"
               isLoading={loading}
             >
               Crear Cuenta
@@ -175,7 +174,7 @@ const Register = () => {
             <div className="text-center">
               <p className="text-sm text-gray-600">
                 ¿Ya tienes cuenta?{' '}
-                <Link to="/login" className="text-blue-600 hover:underline font-medium">
+                <Link to="/login" className="text-[#0764bf] hover:text-[#1800ad] font-medium transition-colors">
                   Inicia sesión aquí
                 </Link>
               </p>

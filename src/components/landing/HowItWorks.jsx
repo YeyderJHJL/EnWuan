@@ -45,7 +45,7 @@ export default function HowItWorks() {
       <div className="max-w-6xl mx-auto">
         {/* Section Header */}
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+          <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-[#0764bf] to-[#1800ad] bg-clip-text text-transparent mb-4">
             ¿Cómo funciona?
           </h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
@@ -58,11 +58,11 @@ export default function HowItWorks() {
           {steps.map((item) => (
             <div key={item.step} className="relative">
               {/* Step Number Badge */}
-              <div className="absolute -top-4 -left-4 w-10 h-10 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-full flex items-center justify-center text-white font-bold">
+              <div className="absolute -top-4 -left-4 w-10 h-10 bg-gradient-to-br from-[#0764bf] to-[#1800ad] rounded-full flex items-center justify-center text-white font-bold">
                 {item.step}
               </div>
 
-              <Card className="bg-white border border-gray-200 h-full">
+              <Card className="bg-white border border-gray-200 h-full hover:shadow-lg transition-shadow">
                 <CardBody className="p-6">
                   <div className="text-5xl mb-4">{item.icon}</div>
                   <h3 className="text-xl font-bold text-gray-900 mb-3">
@@ -78,8 +78,8 @@ export default function HowItWorks() {
         </div>
 
         {/* Info Box */}
-        <div className="mt-16 bg-white border-2 border-indigo-200 rounded-lg p-8">
-          <h3 className="text-2xl font-bold text-gray-900 mb-4">💡 Sistema de Calidad Explicado</h3>
+        <div className="mt-16 bg-white border-2 rounded-lg p-8" style={{borderColor: '#0764bf'}}>
+          <h3 className="text-2xl font-bold mb-4 bg-gradient-to-r from-[#0764bf] to-[#1800ad] bg-clip-text text-transparent">💡 Sistema de Calidad Explicado</h3>
           <div className="grid md:grid-cols-3 gap-8">
             <div>
               <p className="font-bold text-lg text-gray-900 mb-2">🟢 Bronce (0-74%)</p>

@@ -8,15 +8,26 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export default function Landing() {
-  const { currentUser } = useAuth();
+  const { firebaseUser, userProfile, loading } = useAuth();
   const navigate = useNavigate();
 
-  // Si el usuario ya está autenticado, redirigir al dashboard
+  // Si el usuario ya está autenticado, redirigir al dashboard según rol
   useEffect(() => {
-    if (currentUser) {
-      navigate('/dashboard/user');
+    if (!loading && firebaseUser && userProfile?.role) {
+      switch (userProfile.role) {
+        case 'admin':
+          navigate('/dashboard/admin');
+          break;
+        case 'business':
+          navigate('/dashboard/business');
+          break;
+        case 'user':
+        default:
+          navigate('/dashboard/user');
+          break;
+      }
     }
-  }, [currentUser, navigate]);
+  }, [loading, firebaseUser, userProfile, navigate]);
 
   return (
     <div className="min-h-screen bg-white">
