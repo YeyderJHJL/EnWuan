@@ -47,32 +47,36 @@ export default function UserDashboard() {
   return (
     <MainLayout>
       <div className="py-8">
+        <h1 className="text-4xl font-bold mb-8 bg-gradient-to-r from-[#0764bf] to-[#1800ad] bg-clip-text text-transparent">
+          Mi Dashboard
+        </h1>
+
         {/* Stats Cards */}
         <div className="grid md:grid-cols-4 gap-4 mb-8">
-          <Card className="shadow-lg">
+          <Card className="shadow-lg border-l-4 border-green-500">
             <CardBody className="p-6">
               <p className="text-gray-600 text-sm">Saldo</p>
-              <p className="text-3xl font-bold text-purple-600">${dashboard?.stats?.balance || 0}</p>
+              <p className="text-3xl font-bold text-green-600">S/ {dashboard?.stats?.balance || 0}</p>
             </CardBody>
           </Card>
 
-          <Card className="shadow-lg">
+          <Card className="shadow-lg border-l-4 border-[#0764bf]">
             <CardBody className="p-6">
               <p className="text-gray-600 text-sm">Encuestas Completadas</p>
-              <p className="text-3xl font-bold">{dashboard?.stats?.totalSubmissions || 0}</p>
+              <p className="text-3xl font-bold text-[#0764bf]">{dashboard?.stats?.totalSubmissions || 0}</p>
             </CardBody>
           </Card>
 
-          <Card className="shadow-lg">
+          <Card className="shadow-lg border-l-4 border-[#1800ad]">
             <CardBody className="p-6">
               <p className="text-gray-600 text-sm">Calidad Promedio</p>
-              <p className="text-3xl font-bold text-blue-600">
+              <p className="text-3xl font-bold text-[#1800ad]">
                 {dashboard?.stats?.averageQuality || 0}%
               </p>
             </CardBody>
           </Card>
 
-          <Card className="shadow-lg">
+          <Card className="shadow-lg border-l-4 border-yellow-500">
             <CardBody className="p-6">
               <p className="text-gray-600 text-sm">Nivel</p>
               <div className="flex items-center gap-2">
