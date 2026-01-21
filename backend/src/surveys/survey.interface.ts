@@ -21,6 +21,7 @@ export interface Survey {
   goal?: string;
   questions: Question[];
   reward: number;
+  estimatedTime?: number;
   active: boolean;
   totalResponses: number;
   createdAt: any;

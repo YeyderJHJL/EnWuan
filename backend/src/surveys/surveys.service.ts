@@ -74,13 +74,16 @@ export class SurveysService {
    */
   async getActiveSurveys(): Promise<Survey[]> {
     const db = this.firebaseService.getFirestore();
+    // Get all surveys that are either active=true or don't have the active field (legacy surveys)
     const snapshot = await db
       .collection('surveys')
-      .where('active', '==', true)
-      .orderBy('createdAt', 'desc')
       .get();
 
-    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Survey));
+    const surveys = snapshot.docs
+      .map((doc) => ({ id: doc.id, ...doc.data() } as Survey))
+      .filter(s => s.active !== false); // Keep surveys where active is true or undefined
+    
+    return surveys.sort((a, b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0));
   }
 
   /**
@@ -91,10 +94,11 @@ export class SurveysService {
     const snapshot = await db
       .collection('surveys')
       .where('companyId', '==', companyId)
-      .orderBy('createdAt', 'desc')
       .get();
 
-    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Survey));
+    const surveys = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Survey));
+    // Sort in memory to avoid Firestore composite index requirement
+    return surveys.sort((a, b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0));
   }
 
   /**
@@ -136,7 +140,9 @@ export class SurveysService {
    */
   async toggleSurveyActive(id: string): Promise<void> {
     const survey = await this.getSurveyById(id);
-    if (!survey) return;
+    if (!survey) {
+      throw new Error(`Survey ${id} not found`);
+    }
 
     const db = this.firebaseService.getFirestore();
     await db.collection('surveys').doc(id).update({

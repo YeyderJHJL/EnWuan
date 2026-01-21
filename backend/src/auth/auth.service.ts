@@ -69,10 +69,34 @@ export class AuthService {
    */
   async login(dto: LoginDto): Promise<{ uid: string; token: string }> {
     const auth = this.firebaseService.getAuth();
+    const db = this.firebaseService.getFirestore();
 
     try {
       // Get user by email
       const userRecord = await auth.getUserByEmail(dto.email);
+
+      // Verify/Create Firestore user document if it doesn't exist
+      const userDoc = await db.collection('users').doc(userRecord.uid).get();
+      
+      if (!userDoc.exists) {
+        // User doesn't exist in Firestore, create it
+        // This can happen if user registered with different provider or data sync issue
+        const userProfile = {
+          email: userRecord.email,
+          displayName: userRecord.displayName || 'Usuario',
+          role: userRecord.email === this.configService.get('VITE_ADMIN_EMAIL') ? 'admin' : 'user',
+          level: UserLevel.BRONZE,
+          balance: 0,
+          qualityScore: 100,
+          totalSubmissions: 0,
+          validSubmissions: 0,
+          invalidSubmissions: 0,
+          createdAt: this.firebaseService.getServerTimestamp(),
+          updatedAt: this.firebaseService.getServerTimestamp(),
+        };
+        
+        await db.collection('users').doc(userRecord.uid).set(userProfile);
+      }
 
       // Generate custom token
       const token = await auth.createCustomToken(userRecord.uid);

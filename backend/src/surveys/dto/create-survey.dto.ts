@@ -43,6 +43,10 @@ export class CreateSurveyDto {
   @IsNumber()
   reward: number;
 
+  @IsNumber()
+  @IsOptional()
+  estimatedTime?: number;
+
   @IsString()
   companyId: string;
 }

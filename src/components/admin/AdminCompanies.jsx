@@ -17,10 +17,12 @@ export default function AdminCompanies() {
           adminService.getAllCompanies(),
           adminService.getPendingCompanies(),
         ]);
-        setCompanies(companiesRes.data || []);
-        setPendingCompanies(pendingRes.data || []);
+        setCompanies(Array.isArray(companiesRes.data) ? companiesRes.data : []);
+        setPendingCompanies(Array.isArray(pendingRes.data) ? pendingRes.data : []);
       } catch (error) {
         console.error('Error fetching companies:', error);
+        setCompanies([]);
+        setPendingCompanies([]);
       } finally {
         setLoading(false);
       }

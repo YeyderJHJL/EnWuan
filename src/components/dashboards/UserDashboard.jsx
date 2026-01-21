@@ -17,9 +17,10 @@ export default function UserDashboard() {
         setDashboard(dashResponse.data);
         
         const surveysResponse = await surveysService.getActiveSurveys();
-        setSurveys(surveysResponse.data);
+        setSurveys(Array.isArray(surveysResponse.data) ? surveysResponse.data : []);
       } catch (error) {
         console.error('Error fetching dashboard:', error);
+        setSurveys([]);
       } finally {
         setLoading(false);
       }

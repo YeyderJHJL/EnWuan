@@ -217,10 +217,10 @@ Response format:
     const snapshot = await db
       .collection('submissions')
       .where('userId', '==', userId)
-      .orderBy('createdAt', 'desc')
       .get();
 
-    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Submission));
+    const submissions = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Submission));
+    return submissions.sort((a, b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0));
   }
 
   /**
@@ -231,10 +231,10 @@ Response format:
     const snapshot = await db
       .collection('submissions')
       .where('surveyId', '==', surveyId)
-      .orderBy('createdAt', 'desc')
       .get();
 
-    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Submission));
+    const submissions = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Submission));
+    return submissions.sort((a, b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0));
   }
 
   /**
@@ -245,10 +245,10 @@ Response format:
     const snapshot = await db
       .collection('submissions')
       .where('companyId', '==', companyId)
-      .orderBy('createdAt', 'desc')
       .get();
 
-    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Submission));
+    const submissions = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Submission));
+    return submissions.sort((a, b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0));
   }
 
   /**

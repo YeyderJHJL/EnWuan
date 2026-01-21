@@ -3,8 +3,8 @@ import { ServiceMode } from '../company.interface';
 
 export class CreateCompanyDto {
   @IsString()
-  @IsNotEmpty()
-  userId: string;
+  @IsOptional()
+  userId?: string;
 
   @IsString()
   @IsNotEmpty()
@@ -17,6 +17,18 @@ export class CreateCompanyDto {
   @IsString()
   @IsNotEmpty()
   sector: string;
+
+  @IsString()
+  @IsOptional()
+  plan?: string;
+
+  @IsString()
+  @IsOptional()
+  website?: string;
+
+  @IsString()
+  @IsOptional()
+  phone?: string;
 
   @IsString()
   @IsOptional()

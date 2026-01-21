@@ -25,9 +25,10 @@ const SurveysManagement = () => {
   const loadSurveys = async () => {
     try {
       const response = await surveysService.getActiveSurveys();
-      setSurveys(response.data || []);
+      setSurveys(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       console.error('Error al cargar encuestas:', error);
+      setSurveys([]);
     } finally {
       setLoading(false);
     }
@@ -35,9 +36,9 @@ const SurveysManagement = () => {
 
   const toggleSurveyStatus = async (surveyId, currentStatus) => {
     try {
-      await surveysService.toggleSurveyActive(surveyId, !currentStatus);
+      await surveysService.toggleSurveyActive(surveyId);
       setSurveys(surveys.map(survey => 
-        survey.id === surveyId ? { ...survey, isActive: !currentStatus } : survey
+        survey.id === surveyId ? { ...survey, active: !currentStatus } : survey
       ));
     } catch (error) {
       console.error('Error al actualizar encuesta:', error);

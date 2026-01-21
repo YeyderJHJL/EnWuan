@@ -16,6 +16,9 @@ export interface CompanyProfile {
   name: string;
   description: string;
   sector: string;
+  plan?: string;
+  website?: string;
+  phone?: string;
   location?: string;
   schedule?: string;
   targetAudience?: string;

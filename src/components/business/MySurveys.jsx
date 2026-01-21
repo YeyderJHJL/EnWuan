@@ -35,9 +35,9 @@ export default function MySurveys() {
   const handleToggleActive = async (surveyId) => {
     try {
       await surveysService.toggleSurveyActive(surveyId);
-      // Actualizar lista
+      // Actualizar lista - toggle el estado
       setSurveys(surveys.map(s => 
-        s.id === surveyId ? { ...s, isActive: !s.isActive } : s
+        s.id === surveyId ? { ...s, active: !s.active } : s
       ));
     } catch (error) {
       console.error('Error toggling survey:', error);
@@ -87,7 +87,7 @@ export default function MySurveys() {
           <CardBody className="p-6 text-center">
             <p className="text-gray-600 text-sm mb-1">Activas</p>
             <p className="text-4xl font-bold text-green-600">
-              {surveys.filter(s => s.isActive).length}
+              {surveys.filter(s => s.active).length}
             </p>
           </CardBody>
         </Card>
@@ -95,7 +95,7 @@ export default function MySurveys() {
           <CardBody className="p-6 text-center">
             <p className="text-gray-600 text-sm mb-1">Inactivas</p>
             <p className="text-4xl font-bold text-[#1800ad]">
-              {surveys.filter(s => !s.isActive).length}
+              {surveys.filter(s => !s.active).length}
             </p>
           </CardBody>
         </Card>
@@ -128,11 +128,11 @@ export default function MySurveys() {
                     <div className="flex items-center gap-3 mb-2">
                       <h3 className="text-2xl font-bold">{survey.title}</h3>
                       <Chip
-                        color={survey.isActive ? 'success' : 'default'}
+                        color={survey.active ? 'success' : 'default'}
                         variant="flat"
                         size="sm"
                       >
-                        {survey.isActive ? 'Activa' : 'Inactiva'}
+                        {survey.active ? 'Activa' : 'Inactiva'}
                       </Chip>
                     </div>
                     <p className="text-gray-600 mb-3 line-clamp-2">{survey.description}</p>
@@ -148,20 +148,22 @@ export default function MySurveys() {
                       variant="flat"
                       className="text-[#0764bf] hover:bg-[#0764bf]/10"
                       startContent={<Eye className="w-4 h-4" />}
+                      as={Link}
+                      to={`/survey-analytics/${survey.id}`}
                     >
                       Ver
                     </Button>
                     <Button
                       size="sm"
                       variant="flat"
-                      color={survey.isActive ? 'warning' : 'success'}
+                      color={survey.active ? 'warning' : 'success'}
                       onClick={() => handleToggleActive(survey.id)}
-                      startContent={survey.isActive ? 
+                      startContent={survey.active ? 
                         <ToggleRight className="w-4 h-4" /> : 
                         <ToggleLeft className="w-4 h-4" />
                       }
                     >
-                      {survey.isActive ? 'Desactivar' : 'Activar'}
+                      {survey.active ? 'Desactivar' : 'Activar'}
                     </Button>
                   </div>
                 </div>

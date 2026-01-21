@@ -144,18 +144,18 @@ export default function CreateSurvey() {
                 <Input
                   type="number"
                   label="Recompensa (S/)"
-                  value={formData.reward}
-                  onChange={(e) => setFormData({ ...formData, reward: parseFloat(e.target.value) })}
+                  value={formData.reward || ''}
+                  onChange={(e) => setFormData({ ...formData, reward: parseFloat(e.target.value) || 0 })}
                   required
                   min="0.5"
-                  step="0.5"
+                  step="0.1"
                 />
 
                 <Input
                   type="number"
                   label="Tiempo Estimado (minutos)"
-                  value={formData.estimatedTime}
-                  onChange={(e) => setFormData({ ...formData, estimatedTime: parseInt(e.target.value) })}
+                  value={formData.estimatedTime || ''}
+                  onChange={(e) => setFormData({ ...formData, estimatedTime: parseInt(e.target.value) || 1 })}
                   required
                   min="1"
                 />

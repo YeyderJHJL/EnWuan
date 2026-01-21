@@ -156,7 +156,7 @@ export default function BusinessDashboard() {
                 <div>
                   <p className="text-gray-600 text-sm">Encuestas Activas</p>
                   <p className="text-3xl font-bold text-[#01002e]">
-                    {surveys.filter(s => s.isActive).length}
+                    {surveys.filter(s => s.active).length}
                   </p>
                 </div>
               </div>
@@ -209,12 +209,12 @@ export default function BusinessDashboard() {
                     <h3 className="text-xl font-bold">{survey.title}</h3>
                     <span
                       className={`px-3 py-1 rounded-full text-xs font-bold ${
-                        survey.isActive
+                        survey.active
                           ? 'bg-green-100 text-green-700'
                           : 'bg-gray-100 text-gray-700'
                       }`}
                     >
-                      {survey.isActive ? 'Activa' : 'Inactiva'}
+                      {survey.active ? 'Activa' : 'Inactiva'}
                     </span>
                   </div>
                   <p className="text-gray-600 mb-4 line-clamp-2">{survey.description}</p>

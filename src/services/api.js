@@ -18,6 +18,34 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// Response interceptor - Ensure arrays are never undefined
+api.interceptors.response.use(
+  (response) => {
+    // Si response.data es un array, retorna normal
+    if (Array.isArray(response.data)) {
+      return response;
+    }
+    
+    // Si es null o undefined, convierte a array vacío
+    if (response.data === null || response.data === undefined) {
+      response.data = [];
+    }
+    
+    return response;
+  },
+  (error) => {
+    console.error('API Error:', error.response?.status, error.message);
+    
+    // Si 404 o 500, retorna array vacío para evitar crashes
+    if (error.response?.status === 404 || error.response?.status === 500) {
+      console.warn('API returned error, defaulting to empty array');
+      return { data: [] };
+    }
+    
+    return Promise.reject(error);
+  }
+);
+
 export const authService = {
   register: (email, password, displayName, role) =>
     api.post('/auth/register', { email, password, displayName, role }),

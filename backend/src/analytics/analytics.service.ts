@@ -19,8 +19,21 @@ export class AnalyticsService {
 
     // Get user data
     const userDoc = await db.collection('users').doc(userId).get();
+    
+    // If user doesn't exist, return default dashboard
     if (!userDoc.exists) {
-      return null;
+      return {
+        profile: { uid: userId },
+        stats: {
+          totalSubmissions: 0,
+          totalEarned: 0,
+          averageQuality: 0,
+          validSubmissions: 0,
+          level: 'bronze',
+          balance: 0,
+        },
+        recentActivity: [],
+      };
     }
 
     const user = userDoc.data();
@@ -29,10 +42,10 @@ export class AnalyticsService {
     const submissions = await this.submissionsService.getSubmissionsByUser(userId);
 
     // Calculate stats
-    const totalEarned = submissions.reduce((sum, s) => sum + s.rewardGiven, 0);
+    const totalEarned = submissions.reduce((sum, s) => sum + (s.rewardGiven || 0), 0);
     const avgQuality = Math.round(
       submissions.length > 0
-        ? submissions.reduce((sum, s) => sum + s.qualityScore, 0) / submissions.length
+        ? submissions.reduce((sum, s) => sum + (s.qualityScore || 0), 0) / submissions.length
         : 0,
     );
 
@@ -46,14 +59,14 @@ export class AnalyticsService {
         totalEarned,
         averageQuality: avgQuality,
         validSubmissions: submissions.filter((s) => s.isValid).length,
-        level: user.level,
-        balance: user.balance,
+        level: user?.level || 'bronze',
+        balance: user?.balance || 0,
       },
       recentActivity: recentSubmissions.map((s) => ({
         id: s.id,
         surveyId: s.surveyId,
-        reward: s.rewardGiven,
-        quality: s.qualityScore,
+        reward: s.rewardGiven || 0,
+        quality: s.qualityScore || 0,
         isValid: s.isValid,
         createdAt: s.createdAt,
       })),

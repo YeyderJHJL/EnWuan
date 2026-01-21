@@ -23,9 +23,10 @@ export default function AvailableTasks() {
   const loadSurveys = async () => {
     try {
       const response = await surveysService.getActiveSurveys();
-      setSurveys(response.data || []);
+      setSurveys(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       console.error('Error al cargar encuestas:', error);
+      setSurveys([]);
     } finally {
       setLoading(false);
     }
