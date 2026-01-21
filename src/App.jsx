@@ -4,7 +4,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 
 // Pages
 import Landing from './pages/LandingPage';
-import SurveyDetail from './pages/SurveyDetail';
+import SurveyDetail from './components/business/SurveyDetail';
 import Profile from './pages/Profile';
 import CreateSurvey from './components/business/CreateSurvey';
 import MySurveys from './components/business/MySurveys';
@@ -12,7 +12,7 @@ import SurveyResponses from './components/business/SurveyResponses';
 import SurveyAnalytics from './components/business/SurveyAnalytics';
 import CompanyProfile from './components/business/CompanyProfile';
 import UserProfile from './components/user/UserProfile';
-import CompanyOnboarding from './pages/CompanyOnboarding';
+import CompanyOnboarding from './components/business/CompanyOnboarding';
 import AdminProfile from './components/admin/AdminProfile';
 
 // Auth Components

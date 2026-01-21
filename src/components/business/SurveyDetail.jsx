@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardBody, Button, Input, Select, SelectItem, Textarea, Spinner } from '@nextui-org/react';
-import MainLayout from '../layouts/MainLayout';
-import { useAuth } from '../contexts/AuthContext';
-import { surveysService, submissionsService } from '../services/api';
+import MainLayout from '../../layouts/MainLayout';
+import { useAuth } from '../../contexts/AuthContext';
+import { surveysService, submissionsService } from '../../services/api';
 
 const QuestionTypeEnum = {
   MULTIPLE_CHOICE: 'multiple_choice',
@@ -79,15 +79,8 @@ export default function SurveyDetail() {
         return;
       }
 
-      // Format answers as array of objects
-      const formattedAnswers = survey.questions.map((q) => ({
-        questionId: q.id,
-        questionText: q.text,
-        answer: answers[q.id],
-      }));
-
-      // Submit to backend
-      const response = await submissionsService.submitSurvey(surveyId, formattedAnswers);
+      // Submit to backend - send answers as object (already formatted in state)
+      const response = await submissionsService.submitSurvey(surveyId, answers);
 
       if (response.data) {
         setResult(response.data);
