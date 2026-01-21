@@ -125,7 +125,7 @@ export default function UserDashboard() {
                     <span className="text-lg font-bold text-green-600">+${survey.reward}</span>
                     <Button
                       size="sm"
-                      className="bg-purple-600 text-white"
+                      className="bg-gradient-to-r from-[#0764bf] to-[#1800ad] text-white font-bold"
                       as="a"
                       href={`/survey/${survey.id}`}
                     >
