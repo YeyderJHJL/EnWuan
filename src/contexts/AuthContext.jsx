@@ -7,46 +7,74 @@ import {
 } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../services/firebase';
+import { authService } from '../services/api';
 
-const AuthContext = createContext({});
+export const AuthContext = createContext({});
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within AuthProvider');
+  }
+  return context;
+};
 
 export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [userRole, setUserRole] = useState(null);
+  const [firebaseUser, setFirebaseUser] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
-  const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL;
+  const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || 'jturpoan@unsa.edu.pe';
 
   // Registrar nuevo usuario
   const signup = async (email, password, displayName, accountType) => {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
 
-    // Determinar rol
-    let role = 'user';
-    if (email === ADMIN_EMAIL) {
-      role = 'admin';
-    } else if (accountType === 'business') {
-      role = 'business';
+      // Register in backend
+      const backendResponse = await authService.register(
+        email,
+        password,
+        displayName,
+        accountType === 'business' ? 'business' : 'user'
+      );
+
+      // Store backend token
+      if (backendResponse.data.token) {
+        localStorage.setItem('authToken', backendResponse.data.token);
+      }
+
+      // Crear documento de usuario en Firestore
+      await setDoc(doc(db, 'users', user.uid), {
+        uid: user.uid,
+        email: user.email,
+        displayName: displayName,
+        role: email === ADMIN_EMAIL ? 'admin' : (accountType === 'business' ? 'business' : 'user'),
+        balance: 0,
+        createdAt: new Date().toISOString(),
+      });
+
+      return userCredential;
+    } catch (error) {
+      console.error('Signup error:', error);
+      throw error;
     }
-
-    // Crear documento de usuario en Firestore
-    await setDoc(doc(db, 'users', user.uid), {
-      uid: user.uid,
-      email: user.email,
-      displayName: displayName,
-      role: role,
-      balance: 0,
-      createdAt: new Date().toISOString(),
-    });
-
-    return userCredential;
   };
 
   // Iniciar sesión
   const login = async (email, password) => {
-    return await signInWithEmailAndPassword(auth, email, password);
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      const idToken = await user.getIdToken();
+      localStorage.setItem('authToken', idToken);
+      return userCredential;
+    } catch (error) {
+      console.error('Login error:', error);
+      throw error;
+    }
   };
 
   // Cerrar sesión
@@ -65,32 +93,46 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        const userData = await getUserData(user.uid);
-        setCurrentUser({ ...user, ...userData });
-        setUserRole(userData?.role || 'user');
-      } else {
-        setCurrentUser(null);
+      setLoading(true);
+
+      if (!user) {
+        setFirebaseUser(null);
+        setUserProfile(null);
         setUserRole(null);
+        setLoading(false);
+        return;
       }
-      setLoading(false);
+
+      setFirebaseUser(user);
+
+      try {
+        const profile = await getUserData(user.uid);
+        setUserProfile(profile);
+        setUserRole(profile?.role || 'user');
+      } catch (e) {
+        console.error('Error loading profile', e);
+        setUserProfile(null);
+      } finally {
+        setLoading(false);
+      }
     });
 
     return unsubscribe;
   }, []);
 
   const value = {
-    currentUser,
+    firebaseUser,
+    userProfile,
     userRole,
+    loading,
     signup,
     login,
     logout,
-    getUserData,
   };
 
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+      {!loading ? children : null}
     </AuthContext.Provider>
   );
 };

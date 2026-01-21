@@ -1,49 +1,63 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
-import Login from './components/auth/Login';
-import Register from './components/auth/Register';
-import AdminDashboard from './components/admin/AdminDashboard';
-import BusinessDashboard from './components/business/BusinessDashboard';
-import UserDashboard from './components/user/UserDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
-import LandingPage from './components/LandingPage';
+
+// Pages
+import Landing from './pages/LandingPage';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import UserDashboard from './pages/UserDashboard';
+import AdminDashboard from './pages/AdminDashboard';
+import SurveyDetail from './pages/SurveyDetail';
 
 function App() {
   return (
     <Router>
       <AuthProvider>
         <Routes>
-          <Route path="/" element={<LandingPage />} />
+          {/* Public Routes */}
+          <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          
-          <Route 
-            path="/admin" 
+
+          {/* Protected Routes */}
+          <Route
+            path="/survey/:surveyId"
             element={
-              <ProtectedRoute allowedRoles={['admin']}>
-                <AdminDashboard />
+              <ProtectedRoute>
+                <SurveyDetail />
               </ProtectedRoute>
-            } 
+            }
           />
-          
-          <Route 
-            path="/business" 
+
+          <Route
+            path="/surveys"
             element={
-              <ProtectedRoute allowedRoles={['business']}>
-                <BusinessDashboard />
-              </ProtectedRoute>
-            } 
-          />
-          
-          <Route 
-            path="/dashboard" 
-            element={
-              <ProtectedRoute allowedRoles={['user']}>
+              <ProtectedRoute>
                 <UserDashboard />
               </ProtectedRoute>
-            } 
+            }
           />
-          
+
+          <Route
+            path="/dashboard/user"
+            element={
+              <ProtectedRoute>
+                <UserDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/dashboard/admin"
+            element={
+              <ProtectedRoute requiredRole="admin">
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </AuthProvider>
