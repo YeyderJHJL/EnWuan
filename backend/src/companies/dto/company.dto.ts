@@ -1,5 +1,5 @@
 import { IsString, IsNotEmpty, IsEnum, IsOptional } from 'class-validator';
-import { ServiceMode } from './company.interface';
+import { ServiceMode } from '../company.interface';
 
 export class CreateCompanyDto {
   @IsString()

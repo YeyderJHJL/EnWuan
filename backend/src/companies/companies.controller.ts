@@ -1,14 +1,23 @@
-import { Controller, Get, Post, Put, Body, Param } from '@nestjs/common';
+import { Controller, Get, Post, Put, Body, Param, UseGuards } from '@nestjs/common';
 import { CompaniesService } from './companies.service';
 import { CreateCompanyDto, UpdateCompanyDto } from './dto/company.dto';
+import { AuthGuard } from '../auth/auth.guard';
+import { GetUser } from '../auth/decorators/get-user.decorator';
 
 @Controller('companies')
 export class CompaniesController {
   constructor(private readonly companiesService: CompaniesService) {}
 
   @Post()
-  async createCompany(@Body() dto: CreateCompanyDto) {
-    const id = await this.companiesService.createCompany(dto);
+  @UseGuards(AuthGuard)
+  async createCompany(
+    @GetUser() userId: string,
+    @Body() dto: CreateCompanyDto,
+  ) {
+    const id = await this.companiesService.createCompany({
+      ...dto,
+      userId,
+    });
     return { id, message: 'Company created successfully' };
   }
 
@@ -18,11 +27,13 @@ export class CompaniesController {
   }
 
   @Get('user/:userId')
+  @UseGuards(AuthGuard)
   async getCompanyByUserId(@Param('userId') userId: string) {
     return this.companiesService.getCompanyByUserId(userId);
   }
 
   @Put(':id')
+  @UseGuards(AuthGuard)
   async updateCompany(
     @Param('id') id: string,
     @Body() dto: UpdateCompanyDto,

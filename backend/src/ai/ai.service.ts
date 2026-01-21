@@ -265,4 +265,31 @@ Responde SOLO en formato JSON:
       };
     }
   }
+
+  /**
+   * Generic method to analyze content with Gemini
+   */
+  async analyzeWithGemini(prompt: string): Promise<string> {
+    if (!this.model) {
+      // Return mock JSON response
+      return JSON.stringify({
+        isValid: true,
+        reason: 'Mocked response',
+        qualityScore: 75,
+      });
+    }
+
+    try {
+      const result = await this.model.generateContent(prompt);
+      return result.response.text();
+    } catch (error) {
+      console.error('Error calling Gemini API:', error);
+      // Return fallback
+      return JSON.stringify({
+        isValid: true,
+        reason: 'Default response due to error',
+        qualityScore: 70,
+      });
+    }
+  }
 }

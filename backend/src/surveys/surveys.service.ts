@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { FirebaseService } from '../common/firebase/firebase.service';
 import { CompaniesService } from '../companies/companies.service';
-import { Survey } from './survey.interface';
+import { Survey, Question, QuestionType } from './survey.interface';
 
 @Injectable()
 export class SurveysService {
@@ -11,13 +11,34 @@ export class SurveysService {
   ) {}
 
   /**
+   * Normalize questions from DTO to proper interface
+   * Adds missing properties (id, ensures required is boolean)
+   */
+  private normalizeQuestions(dtoQuestions: any[]): Question[] {
+    return dtoQuestions.map((q, index) => ({
+      id: q.id || `q_${index}_${Date.now()}`,
+      text: q.text,
+      type: q.type as QuestionType,
+      options: q.options || [],
+      required: q.required ?? true, // Default to true if not provided
+    }));
+  }
+
+  /**
    * Create new survey
+   * Transforms DTO to proper Survey interface before saving
    */
   async createSurvey(surveyData: Partial<Survey>): Promise<string> {
     const db = this.firebaseService.getFirestore();
     
+    // Normalize questions if they exist
+    const normalizedQuestions = surveyData.questions
+      ? this.normalizeQuestions(surveyData.questions)
+      : [];
+    
     const survey: Partial<Survey> = {
       ...surveyData,
+      questions: normalizedQuestions,
       active: true,
       totalResponses: 0,
       createdAt: this.firebaseService.getServerTimestamp(),
@@ -95,8 +116,17 @@ export class SurveysService {
    */
   async updateSurvey(id: string, updates: Partial<Survey>): Promise<void> {
     const db = this.firebaseService.getFirestore();
+    
+    // Normalize questions if they exist
+    const normalizedUpdates = updates.questions
+      ? {
+          ...updates,
+          questions: this.normalizeQuestions(updates.questions),
+        }
+      : updates;
+    
     await db.collection('surveys').doc(id).update({
-      ...updates,
+      ...normalizedUpdates,
       updatedAt: this.firebaseService.getServerTimestamp(),
     });
   }
