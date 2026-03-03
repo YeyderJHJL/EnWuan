@@ -31,10 +31,12 @@ export class AdminService {
     // Get all users count
     const usersSnapshot = await db.collection('users').get();
     const totalUsers = usersSnapshot.size;
+    console.log('📊 Admin: Total users:', totalUsers);
 
     // Get all submissions count
     const submissionsSnapshot = await db.collection('submissions').get();
     const totalSubmissions = submissionsSnapshot.size;
+    console.log('📊 Admin: Total submissions:', totalSubmissions);
 
     // Get average quality
     const submissions = submissionsSnapshot.docs.map((doc) => doc.data());
@@ -49,6 +51,9 @@ export class AdminService {
     // Get companies by level
     const companiesSnapshot = await db.collection('companies').get();
     const companies = companiesSnapshot.docs.map((doc) => doc.data());
+    const totalCompanies = companies.length;
+    console.log('📊 Admin: Total companies:', totalCompanies);
+    
     const companiesByLevel = {
       bronze: companies.filter((c: any) => c.level === 'bronze').length,
       silver: companies.filter((c: any) => c.level === 'silver').length,
@@ -62,11 +67,12 @@ export class AdminService {
 
     return {
       totalUsers,
+      totalCompanies,
       totalSubmissions,
+      totalResponses: totalSubmissions,
       averageQuality: avgQuality,
       totalRevenue,
       companiesByLevel,
-      companiesTotal: companies.length,
       timestamp: new Date(),
     };
   }

@@ -106,6 +106,84 @@ Responde SOLO en formato JSON:
   /**
    * Suggest smart questions for companies based on their profile
    */
+  /**
+   * Suggest questions based on survey title and description
+   */
+  async suggestQuestionsFromTitle(
+    title: string,
+    description: string,
+  ): Promise<{ suggestedQuestions: any[] }> {
+    if (!this.model) {
+      // Mock suggestions
+      return {
+        suggestedQuestions: [
+          { text: '¿Cómo calificarías tu experiencia?', type: 'rating', options: [] },
+          { text: '¿Qué podríamos mejorar?', type: 'open', options: [] },
+          { text: '¿Recomendarías nuestro servicio?', type: 'multiple_choice', options: ['Sí', 'No', 'Quizás'] },
+        ],
+      };
+    }
+
+    try {
+      const prompt = `
+Eres un experto en diseño de encuestas. 
+
+TÍTULO DE ENCUESTA: ${title}
+DESCRIPCIÓN/OBJETIVO: ${description}
+
+Basándote en el título y descripción, sugiere 4-5 preguntas de encuesta específicas y relevantes que:
+1. Directamente dirigidas al objetivo
+2. Sean claras y fáciles de responder
+3. Generen insights útiles
+4. Incluyan una mezcla de tipos: opción múltiple, calificación, respuesta abierta
+
+Para cada pregunta, sugiere:
+- El texto de la pregunta
+- El tipo (multiple_choice, rating, open)
+- Las opciones (si es multiple_choice)
+
+Responde SOLO en formato JSON:
+{
+  "suggestedQuestions": [
+    {
+      "text": "pregunta 1",
+      "type": "multiple_choice|rating|open",
+      "options": ["opción 1", "opción 2"] (solo para multiple_choice)
+    }
+  ]
+}
+`;
+
+      const result = await this.model.generateContent(prompt);
+      const text = result.response.text();
+      
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        const parsed = JSON.parse(jsonMatch[0]);
+        return {
+          suggestedQuestions: parsed.suggestedQuestions || [],
+        };
+      }
+
+      // Fallback
+      return {
+        suggestedQuestions: [
+          { text: '¿Cómo calificarías tu experiencia?', type: 'rating', options: [] },
+          { text: '¿Qué te gustó más?', type: 'open', options: [] },
+          { text: '¿Lo recomendarías?', type: 'multiple_choice', options: ['Sí', 'No'] },
+        ],
+      };
+    } catch (error) {
+      console.error('Error suggesting questions from title:', error);
+      return {
+        suggestedQuestions: [
+          { text: '¿Cómo fue tu experiencia?', type: 'rating', options: [] },
+          { text: '¿Comentarios adicionales?', type: 'open', options: [] },
+        ],
+      };
+    }
+  }
+
   async suggestQuestions(
     companyProfile: {
       name: string;

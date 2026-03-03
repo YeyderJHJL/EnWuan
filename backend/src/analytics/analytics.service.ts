@@ -78,20 +78,25 @@ export class AnalyticsService {
    */
   async getCompanyDashboard(companyId: string) {
     const db = this.firebaseService.getFirestore();
+    console.log('📊 Analytics: Getting dashboard for company:', companyId);
 
     // Get company data
     const companyDoc = await db.collection('companies').doc(companyId).get();
     if (!companyDoc.exists) {
+      console.log('⚠️  Company not found:', companyId);
       return null;
     }
 
     const company = companyDoc.data();
+    console.log('✅ Company found:', company.name);
 
     // Get company surveys
     const surveys = await this.surveysService.getSurveysByCompany(companyId);
+    console.log('📋 Surveys for company:', surveys.length);
 
     // Get company submissions
     const submissions = await this.submissionsService.getSubmissionsByCompany(companyId);
+    console.log('📥 Submissions for company:', submissions.length);
 
     // Calculate stats
     const totalResponses = submissions.length;

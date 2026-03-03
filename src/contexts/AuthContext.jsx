@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { 
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword,
+  signInWithCustomToken,
   signOut,
   onAuthStateChanged 
 } from 'firebase/auth';
@@ -29,10 +30,9 @@ export const AuthProvider = ({ children }) => {
   // Registrar nuevo usuario
   const signup = async (email, password, displayName, accountType) => {
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
-
-      // Register in backend
+      console.log('AuthContext: Registrando usuario...');
+      
+      // Register in backend - backend creates Firebase user and returns custom token
       const backendResponse = await authService.register(
         email,
         password,
@@ -40,20 +40,19 @@ export const AuthProvider = ({ children }) => {
         accountType === 'business' ? 'business' : 'user'
       );
 
-      // Store backend token
-      if (backendResponse.data.token) {
-        localStorage.setItem('authToken', backendResponse.data.token);
+      console.log('AuthContext: Backend response:', backendResponse);
+
+      if (!backendResponse.data?.token) {
+        throw new Error('No token received from backend');
       }
 
-      // Crear documento de usuario en Firestore
-      await setDoc(doc(db, 'users', user.uid), {
-        uid: user.uid,
-        email: user.email,
-        displayName: displayName,
-        role: email === ADMIN_EMAIL ? 'admin' : (accountType === 'business' ? 'business' : 'user'),
-        balance: 0,
-        createdAt: new Date().toISOString(),
-      });
+      // Sign in with custom token (from backend)
+      const userCredential = await signInWithCustomToken(auth, backendResponse.data.token);
+      console.log('AuthContext: Usuario autenticado con token custom');
+
+      // Store backend token for API calls
+      localStorage.setItem('authToken', backendResponse.data.token);
+      console.log('AuthContext: Token almacenado');
 
       return userCredential;
     } catch (error) {

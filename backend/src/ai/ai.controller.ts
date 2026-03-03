@@ -18,12 +18,19 @@ export class AiController {
 
   @Post('suggest-questions')
   async suggestQuestions(
-    @Body() body: { companyProfile: any; surveyGoal: string },
+    @Body() body: { 
+      title?: string;
+      description?: string;
+      companyProfile?: any; 
+      surveyGoal?: string 
+    },
   ) {
-    return this.aiService.suggestQuestions(
-      body.companyProfile,
-      body.surveyGoal,
-    );
+    // Support both formats: new (title/description) and old (companyProfile/surveyGoal)
+    const title = body.title;
+    const description = body.description;
+    const surveyGoal = body.surveyGoal || body.description;
+    
+    return this.aiService.suggestQuestionsFromTitle(title, surveyGoal);
   }
 
   @Post('analyze-results')

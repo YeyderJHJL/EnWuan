@@ -40,6 +40,19 @@ export class SubmissionsController {
     };
   }
 
+  @Get('check/:surveyId')
+  @UseGuards(AuthGuard)
+  async checkUserSubmission(
+    @GetUser() userId: string,
+    @Param('surveyId') surveyId: string,
+  ) {
+    const submission = await this.submissionsService.getUserSubmissionForSurvey(userId, surveyId);
+    return {
+      hasSubmitted: !!submission,
+      submission: submission || null,
+    };
+  }
+
   @Get('user/:userId')
   @UseGuards(AuthGuard)
   async getSubmissionsByUser(@Param('userId') userId: string) {

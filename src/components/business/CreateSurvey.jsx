@@ -9,6 +9,7 @@ export default function CreateSurvey() {
   const navigate = useNavigate();
   const { firebaseUser } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
   const [error, setError] = useState('');
   const [formData, setFormData] = useState({
     title: '',
@@ -69,6 +70,42 @@ export default function CreateSurvey() {
       (_, i) => i !== optionIndex
     );
     setFormData({ ...formData, questions: newQuestions });
+  };
+
+  const getAISuggestions = async () => {
+    if (!formData.title || !formData.description) {
+      setError('Por favor completa el título y descripción primero');
+      return;
+    }
+
+    setAiLoading(true);
+    setError('');
+
+    try {
+      const response = await surveysService.getAISuggestions({
+        title: formData.title,
+        description: formData.description,
+      });
+
+      if (response.data?.suggestedQuestions && Array.isArray(response.data.suggestedQuestions)) {
+        const newQuestions = response.data.suggestedQuestions.map((q) => ({
+          text: q.text || q,
+          type: q.type || 'multiple_choice',
+          options: q.options || ['Sí', 'No'],
+          required: true,
+        }));
+
+        setFormData({
+          ...formData,
+          questions: [...formData.questions, ...newQuestions],
+        });
+      }
+    } catch (err) {
+      console.error('Error getting AI suggestions:', err);
+      setError('No se pudieron obtener sugerencias. Intenta de nuevo.');
+    } finally {
+      setAiLoading(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -174,6 +211,9 @@ export default function CreateSurvey() {
                 variant="flat"
                 className="text-[#0764bf]"
                 startContent={<Sparkles className="w-4 h-4" />}
+                onClick={getAISuggestions}
+                isLoading={aiLoading}
+                disabled={!formData.title || !formData.description}
               >
                 IA Sugerir
               </Button>

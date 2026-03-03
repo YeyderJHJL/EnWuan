@@ -1,32 +1,70 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardBody, Progress, Button, Spinner } from '@nextui-org/react';
 import { useAuth } from '../../contexts/AuthContext';
-import { analyticsService, surveysService } from '../../services/api';
+import { analyticsService, surveysService, submissionsService } from '../../services/api';
 import MainLayout from '../../layouts/MainLayout';
 
 export default function UserDashboard() {
   const { userProfile } = useAuth();
+  const navigate = useNavigate();
   const [dashboard, setDashboard] = useState(null);
   const [surveys, setSurveys] = useState([]);
+  const [completedSurveys, setCompletedSurveys] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchData = async () => {
+    try {
+      const dashResponse = await analyticsService.getUserDashboard();
+      setDashboard(dashResponse.data);
+      
+      const surveysResponse = await surveysService.getActiveSurveys();
+      setSurveys(Array.isArray(surveysResponse.data) ? surveysResponse.data : []);
+
+      // Get user's completed surveys
+      if (userProfile?.uid) {
+        try {
+          const submissionsResponse = await submissionsService.getSubmissionsByUser(userProfile.uid);
+          const completedIds = submissionsResponse.data?.map((s) => s.surveyId) || [];
+          setCompletedSurveys(completedIds);
+          console.log('✅ User completed surveys:', completedIds);
+        } catch (err) {
+          console.log('Could not fetch completed surveys:', err);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching dashboard:', error);
+      setSurveys([]);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await fetchData();
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const dashResponse = await analyticsService.getUserDashboard();
-        setDashboard(dashResponse.data);
-        
-        const surveysResponse = await surveysService.getActiveSurveys();
-        setSurveys(Array.isArray(surveysResponse.data) ? surveysResponse.data : []);
-      } catch (error) {
-        console.error('Error fetching dashboard:', error);
-        setSurveys([]);
-      } finally {
-        setLoading(false);
+    if (userProfile) {
+      console.log('UserDashboard: userProfile updated, fetching data...');
+      fetchData();
+    }
+  }, [userProfile]);
+
+  // Listen for navigation back to this page (using visibility change)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && userProfile) {
+        console.log('UserDashboard: page visible, refreshing data...');
+        fetchData();
       }
     };
 
-    if (userProfile) fetchData();
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, [userProfile]);
 
   if (loading) {
@@ -112,7 +150,18 @@ export default function UserDashboard() {
         </Card>
 
         {/* Available Surveys */}
-        <h2 className="text-3xl font-bold mb-6 bg-gradient-to-r from-[#0764bf] to-[#1800ad] bg-clip-text text-transparent">Encuestas Disponibles</h2>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-[#0764bf] to-[#1800ad] bg-clip-text text-transparent">Encuestas Disponibles</h2>
+          <Button 
+            size="sm" 
+            variant="flat"
+            className="text-[#0764bf] hover:bg-[#0764bf]/10"
+            onClick={handleRefresh}
+            isLoading={refreshing}
+          >
+            {refreshing ? 'Actualizando...' : 'Actualizar'}
+          </Button>
+        </div>
         <div className="grid md:grid-cols-2 gap-6">
           {surveys.length === 0 ? (
             <p className="text-gray-600">No hay encuestas disponibles en este momento</p>
@@ -124,14 +173,24 @@ export default function UserDashboard() {
                   <p className="text-gray-600 mb-4 line-clamp-2">{survey.description}</p>
                   <div className="flex justify-between items-center">
                     <span className="text-lg font-bold bg-gradient-to-r from-green-500 to-green-600 bg-clip-text text-transparent">+${survey.reward}</span>
-                    <Button
-                      size="sm"
-                      className="bg-gradient-to-r from-[#0764bf] to-[#1800ad] text-white font-bold"
-                      as="a"
-                      href={`/survey/${survey.id}`}
-                    >
-                      Responder
-                    </Button>
+                    {completedSurveys.includes(survey.id) ? (
+                      <Button
+                        size="sm"
+                        className="bg-gray-400 text-white font-bold cursor-not-allowed"
+                        disabled
+                      >
+                        ✓ Contestado
+                      </Button>
+                    ) : (
+                      <Button
+                        size="sm"
+                        className="bg-gradient-to-r from-[#0764bf] to-[#1800ad] text-white font-bold"
+                        as="a"
+                        href={`/survey/${survey.id}`}
+                      >
+                        Responder
+                      </Button>
+                    )}
                   </div>
                 </CardBody>
               </Card>

@@ -37,6 +37,12 @@ export class SubmissionsService {
   ): Promise<{ submissionId: string; qualityScore: number; reward: number }> {
     const db = this.firebaseService.getFirestore();
 
+    // Check if user already submitted this survey
+    const existingSubmission = await this.getUserSubmissionForSurvey(userId, surveyId);
+    if (existingSubmission) {
+      throw new BadRequestException('Ya has respondido esta encuesta');
+    }
+
     // Get survey
     const survey = await this.surveysService.getSurveyById(surveyId);
     if (!survey) {
@@ -46,6 +52,8 @@ export class SubmissionsService {
     if (!survey.active) {
       throw new BadRequestException('Survey is not active');
     }
+
+    console.log('📋 Survey found:', { id: surveyId, companyId: survey.companyId, title: survey.title });
 
     // Validate answers against survey questions
     const missingAnswers = survey.questions
@@ -80,6 +88,8 @@ export class SubmissionsService {
       createdAt: this.firebaseService.getServerTimestamp(),
       updatedAt: this.firebaseService.getServerTimestamp(),
     };
+
+    console.log('💾 Saving submission:', { userId, surveyId, companyId: survey.companyId, qualityScore: validationResult.qualityScore });
 
     const docRef = await db.collection('submissions').add(submission);
 
@@ -210,6 +220,29 @@ Response format:
   }
 
   /**
+   * Check if user already submitted a specific survey
+   */
+  async getUserSubmissionForSurvey(
+    userId: string,
+    surveyId: string,
+  ): Promise<Submission | null> {
+    const db = this.firebaseService.getFirestore();
+    const snapshot = await db
+      .collection('submissions')
+      .where('userId', '==', userId)
+      .where('surveyId', '==', surveyId)
+      .limit(1)
+      .get();
+
+    if (snapshot.empty) {
+      return null;
+    }
+
+    const doc = snapshot.docs[0];
+    return { id: doc.id, ...doc.data() } as Submission;
+  }
+
+  /**
    * Get submissions by user
    */
   async getSubmissionsByUser(userId: string): Promise<Submission[]> {
@@ -242,11 +275,15 @@ Response format:
    */
   async getSubmissionsByCompany(companyId: string): Promise<Submission[]> {
     const db = this.firebaseService.getFirestore();
+    console.log('🔍 Querying submissions for companyId:', companyId);
+    
     const snapshot = await db
       .collection('submissions')
       .where('companyId', '==', companyId)
       .get();
 
+    console.log('📊 Found', snapshot.size, 'submissions for company:', companyId);
+    
     const submissions = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Submission));
     return submissions.sort((a, b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0));
   }

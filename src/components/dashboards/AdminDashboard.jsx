@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Card, CardBody, Spinner, Tabs, Tab } from '@nextui-org/react';
+import { Card, CardBody, Spinner, Tabs, Tab, Button } from '@nextui-org/react';
 import { useAuth } from '../../contexts/AuthContext';
 import { adminService } from '../../services/api';
 import MainLayout from '../../layouts/MainLayout';
-import { BarChart3, Users, Building2, TrendingUp, Heart } from 'lucide-react';
+import { BarChart3, Users, Building2, TrendingUp, Heart, RefreshCw } from 'lucide-react';
 import AdminUsers from '../admin/AdminUsers';
 import AdminCompanies from '../admin/AdminCompanies';
 import AdminSurveyCreation from '../admin/CreateTask';
@@ -14,21 +14,44 @@ export default function AdminDashboard() {
   const { userProfile } = useAuth();
   const [metrics, setMetrics] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchMetrics = async () => {
+    try {
+      setRefreshing(true);
+      const response = await adminService.getGlobalMetrics();
+      setMetrics(response.data || {});
+      console.log('AdminDashboard: Metrics updated', response.data);
+    } catch (error) {
+      console.error('Error fetching metrics:', error);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  const handleRefresh = async () => {
+    await fetchMetrics();
+  };
 
   useEffect(() => {
-    const fetchMetrics = async () => {
-      try {
-        const response = await adminService.getGlobalMetrics();
-        setMetrics(response.data || {});
-      } catch (error) {
-        console.error('Error fetching metrics:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (userProfile?.role === 'admin') fetchMetrics();
+    if (userProfile?.role === 'admin') {
+      console.log('AdminDashboard: Initial load');
+      fetchMetrics();
+    }
   }, [userProfile]);
+
+  // Auto-refresh every 10 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (userProfile?.role === 'admin' && !loading && !refreshing) {
+        console.log('AdminDashboard: Auto-refreshing metrics...');
+        fetchMetrics();
+      }
+    }, 10000); // 10 seconds
+
+    return () => clearInterval(interval);
+  }, [userProfile, loading, refreshing]);
 
   if (loading) {
     return (
@@ -47,14 +70,26 @@ export default function AdminDashboard() {
     averageQuality = 0,
     systemHealth = 100,
     totalRevenue = 0,
-  } = metrics;
+  } = metrics || {};
 
   return (
     <MainLayout>
       <div className="py-8">
-        <h1 className="text-4xl font-bold mb-8 bg-gradient-to-r from-[#0764bf] to-[#1800ad] bg-clip-text text-transparent">
-          Panel Administrativo
-        </h1>
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-[#0764bf] to-[#1800ad] bg-clip-text text-transparent">
+            Panel Administrativo
+          </h1>
+          <Button
+            size="sm"
+            variant="flat"
+            className="text-[#0764bf]"
+            startContent={<RefreshCw className="w-4 h-4" />}
+            onClick={handleRefresh}
+            isLoading={refreshing}
+          >
+            {refreshing ? 'Actualizando...' : 'Actualizar'}
+          </Button>
+        </div>
 
         {/* Métricas principales */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">

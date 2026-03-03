@@ -39,9 +39,21 @@ const Register = () => {
       return;
     }
 
+    if (!formData.displayName.trim()) {
+      setError('El nombre es requerido');
+      return;
+    }
+
+    if (!formData.email.trim()) {
+      setError('El email es requerido');
+      return;
+    }
+
     setLoading(true);
 
     try {
+      console.log('Iniciando registro con:', { email: formData.email, displayName: formData.displayName, accountType: formData.accountType });
+      
       await signup(
         formData.email,
         formData.password,
@@ -49,16 +61,17 @@ const Register = () => {
         formData.accountType
       );
 
+      console.log('Registro exitoso, redirigiendo...');
+      
       // Redirigir según el tipo de cuenta
       if (formData.accountType === 'business') {
-        navigate('/business');
+        navigate('/onboarding/company');
       } else {
-        navigate('/dashboard');
+        navigate('/dashboard/user');
       }
     } catch (err) {
-      setError('Error al registrarse. El email podría estar en uso.');
-      console.error(err);
-    } finally {
+      console.error('Error de registro:', err);
+      setError(err.response?.data?.message || err.message || 'Error al registrarse. Por favor intenta de nuevo.');
       setLoading(false);
     }
   };

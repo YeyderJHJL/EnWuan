@@ -12,32 +12,54 @@ export default function BusinessDashboard() {
   const [dashboard, setDashboard] = useState(null);
   const [surveys, setSurveys] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchData = async () => {
+    try {
+      // Obtener datos de la empresa
+      const companyResponse = await companiesService.getCompanyByUserId(firebaseUser.uid);
+      setCompany(companyResponse.data);
+
+      if (companyResponse.data?.id) {
+        // Obtener dashboard de la empresa
+        const dashResponse = await analyticsService.getCompanyDashboard(companyResponse.data.id);
+        setDashboard(dashResponse.data);
+
+        // Obtener encuestas de la empresa
+        const surveysResponse = await surveysService.getSurveysByCompany(companyResponse.data.id);
+        setSurveys(surveysResponse.data || []);
+      }
+    } catch (error) {
+      console.error('Error fetching business dashboard:', error);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await fetchData();
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Obtener datos de la empresa
-        const companyResponse = await companiesService.getCompanyByUserId(firebaseUser.uid);
-        setCompany(companyResponse.data);
-
-        if (companyResponse.data?.id) {
-          // Obtener dashboard de la empresa
-          const dashResponse = await analyticsService.getCompanyDashboard(companyResponse.data.id);
-          setDashboard(dashResponse.data);
-
-          // Obtener encuestas de la empresa
-          const surveysResponse = await surveysService.getSurveysByCompany(companyResponse.data.id);
-          setSurveys(surveysResponse.data || []);
-        }
-      } catch (error) {
-        console.error('Error fetching business dashboard:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (firebaseUser) fetchData();
+    if (firebaseUser) {
+      console.log('BusinessDashboard: firebaseUser updated, fetching data...');
+      fetchData();
+    }
   }, [firebaseUser]);
+
+  // Auto-refresh dashboard every 10 seconds to show new submissions
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (firebaseUser && !loading && !refreshing) {
+        console.log('BusinessDashboard: Auto-refreshing data...');
+        fetchData();
+      }
+    }, 10000); // 10 seconds
+
+    return () => clearInterval(interval);
+  }, [firebaseUser, loading, refreshing]);
 
   if (loading) {
     return (
@@ -78,11 +100,22 @@ export default function BusinessDashboard() {
     <MainLayout>
       <div className="py-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-[#0764bf] to-[#1800ad] bg-clip-text text-transparent">
-            Dashboard Empresarial
-          </h1>
-          <p className="text-gray-600">Bienvenido, {company.name}</p>
+        <div className="mb-8 flex justify-between items-start">
+          <div>
+            <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-[#0764bf] to-[#1800ad] bg-clip-text text-transparent">
+              Dashboard Empresarial
+            </h1>
+            <p className="text-gray-600">Bienvenido, {company.name}</p>
+          </div>
+          <Button 
+            size="sm" 
+            variant="flat"
+            className="text-[#0764bf] hover:bg-[#0764bf]/10"
+            onClick={handleRefresh}
+            isLoading={refreshing}
+          >
+            {refreshing ? 'Actualizando...' : 'Actualizar'}
+          </Button>
         </div>
 
         {/* Plan Info */}

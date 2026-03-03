@@ -84,6 +84,9 @@ export const surveysService = {
   
   deleteSurvey: (id) =>
     api.delete(`/surveys/${id}`),
+
+  getAISuggestions: (data) =>
+    api.post('/ai/suggest-questions', data),
   
   suggestQuestions: (surveyId, goal) =>
     api.post(`/surveys/${surveyId}/suggest-questions`, { goal }),
@@ -92,6 +95,9 @@ export const surveysService = {
 export const submissionsService = {
   submitSurvey: (surveyId, answers) =>
     api.post('/submissions', { surveyId, answers }),
+  
+  checkUserSubmission: (surveyId) =>
+    api.get(`/submissions/check/${surveyId}`),
   
   getSubmissionsByUser: (userId) =>
     api.get(`/submissions/user/${userId}`),
